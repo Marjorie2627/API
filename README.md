@@ -1,1 +1,1 @@
-# carnetizacion-ui
+# buro_credito-ui
