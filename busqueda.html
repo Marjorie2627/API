@@ -1,0 +1,196 @@
+<style>
+   
+</style> 
+
+<script>
+
+    $("#v1").click(function() {
+        $("#resultados").hide();
+        $('#v1').css({
+            'background-color': '#0D62CF',
+            'color': 'white',
+        });
+        $('#v2').css({
+            'background-color': '#DCEBFF',
+            'color': 'black',
+        });
+        $('#v3').css({
+            'background-color': '#DCEBFF',
+            'color': 'black',
+        });
+        $("#bl3").hide();
+        $("#bl2").hide();
+        $("#bl1").show();
+    });
+
+    $("#v2").click(function() {
+        $("#resultados").hide();
+        $('#v1').css({
+            'background-color': '#DCEBFF',
+            'color': 'black',
+        });
+        $('#v2').css({
+            'background-color': '#0D62CF',
+            'color': 'white',
+        });
+        $('#v3').css({
+            'background-color': '#DCEBFF',
+            'color': 'black',
+        });
+        $("#bl1").hide();
+        $("#bl2").show();
+        $("#bl3").hide();
+    });
+
+    $("#v3").click(function() {
+        $("#resultados").hide();
+        $('#v1').css({
+            'background-color': '#DCEBFF',
+            'color': 'black',
+        });
+        $('#v2').css({
+            'background-color': '#DCEBFF',
+            'color': 'black',
+        });
+        $('#v3').css({
+            'background-color': '#0D62CF',
+            'color': 'white',
+        });
+        $("#bl1").hide();
+        $("#bl2").hide();
+        $("#bl3").show();
+    });
+
+</script>
+
+    <div class="main-contenido">
+    
+        <h3 class="text-center mb-4 mt-4 md:mb-4 leading-tight titulo">BÚSQUEDA DE CIUDADANOS</h3>
+        
+        <div class="flex flex-row text-lg">
+            <div id="v1" class="block_c flex-1 leading-tight text-center px-6 bg-panel rounded-t cursor-pointer st-all" style="color:white"> 
+                Buscar por Documento </div>
+            <div id="v2" class="block_c flex-1 leading-tight text-center px-6 bg-panel rounded-t cursor-pointer st-all">
+                Buscar por Nombre </div>
+            <div id="v3" class="block_c flex-1 leading-tight text-center px-6 bg-panel rounded-t cursor-pointer st-all">
+                Menor de edad </div>
+        </div>
+
+        <form id="formGeneral1" method="get" action="" novalidate="novalidate">
+            <div id="bl1">
+                <div class="p-4 shadow bg-white marco-div">
+                    <div class="container-fluid">
+                        <div class="row">
+                            <!--<div class="col-sm-6">
+                                <p class="mb-1"><label for="dui" class="form-label">Tipo de Documento *</label></p>
+                                <select class='form-control' name='t_doc' id='t_doc'>
+									<option value='dui'>DUI</option>
+									<option value='carne'>Carné de Residente</option>
+									<option value='pasaporte'>Pasaporte u otros</option>
+									<option value='codigo'>Lector de Código</option>
+								</select>
+                            </div>-->
+
+                            <div class="col-sm-12 m-auto">
+                                <p class="mb-1"><label for="dui" class="form-label">Número de Documento *</label></p>
+                                <input type="text" name="dui" id="dui" placeholder="" inputmode="numeric" class="form-input" value="">
+                            </div>
+
+                        </div>
+                        <br>
+                        <div class="row" id='scan' style="display: none;">
+                            <div class="col-sm-12">
+                                <center><span id='scanee'>Escanee Aquí:</span>
+                                    <input type="text" style="color: grey;font-size: 3px; width: 170px;" onkeypress="return check2(event)" onkeyup="onKeyUp(event)" onkeydown="onKeyDown(event)" name="codigo" id="codigo" value="" autocomplete="off"> &nbsp;
+                                    <img src="./images/loading.gif" id='imagen' alt="" width="20px" style="display: none; display: inline;">
+                                </center>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-12 pt-4">
+                                <center><button id="bt_main1" type="button" onclick="mostrarResultados();" class="btn btn-primary p-1">CONSULTAR</button></center>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="bl2" style="display:none">
+                <div class="p-4 shadow bg-white marco-div">
+                    <div class="container-fluid">
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <p class="mb-1"><label for="p_nombre" class="form-label">Primer Nombre *</label></p>
+                                <input type="text" name="p_nombre" id="p_nombre" placeholder="" required onkeypress="return check(event)" class="form-input">
+                            </div>
+
+                            <div class="col-sm-6">
+                                <p class="mb-1"><label for="s_nombre" class="form-label">Segundo Nombre</label></p>
+                                <input type="text" name="s_nombre" id="s_nombre" placeholder="" class="form-input" onkeypress="return check(event)">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <p class="mb-1"><label for="p_apellido" class="form-label">Primer Apellido *</label></p>
+                                <input type="text" name="p_apellido" id="p_apellido" placeholder="" class="form-input" onkeypress="return check(event)">
+                            </div>
+
+                            <div class="col-sm-6">
+                                <p class="mb-1"><label for="s_apellido" class="form-label">Segundo Apellido</label></p>
+                                <input type="text" name="s_apellido" id="s_apellido" placeholder="" class="form-input" onkeypress="return check(event)">
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-sm-12 p-4">
+                                <center><button id="bt_main2" type="button" onclick="mostrarResultados();" class="btn btn-primary mb-1">CONSULTAR</button></center>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="text_r text-xs text-gray-700 ">* Campos requeridos</div>
+                </div>
+            </div>
+
+            <div id="bl3" style="display:none">
+                <div class="p-4 shadow bg-white marco-div">
+                    <div class="container-fluid" id='contenedor_menores'>
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <p class="mb-1"><label for="p_nombre" class="form-label">Escribir código de menor o DUI de responsable *</label></p>
+                                <input type="text" name="p_nombre" id="menor_p_dui" required class="form-input" autocomplete="off">
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-sm-12 p-4"><center><button id="bt_main3" type="button" onclick="mostrarResultados();" class="btn btn-primary mb-1">CONSULTAR</button></center></div>
+                           
+                        </div>
+                    </div>
+                    <div id='contenedor_mensaje' style="display: none;"><center><h1 class='text-warning'><br><br>¡Este establecimiento no está autorizado para vacunar menores de edad!<br><br><br><br></h1></center></div>
+
+                    <div class="text_r text-xs text-gray-700 ">* Campos requeridos</div>
+                </div>
+            </div>
+
+
+            <input id="tdoc" name="tdoc" type="hidden" value="1">
+
+        </form>
+        <div><br></div>
+        <form id="formGeneral2" method="get" action="" novalidate="novalidate">
+            <div id="resultados" style="display:none">
+                <div class="p-2 shadow bg-white round-div">
+                    <div class="container-fluid">
+                        <div id="fotos"></div>
+                        <div id="msg" class="text-center border-blue-500 border bg-blue-100 p-4 font-bold mb-4 md:mb-8" style="display: none;">MSG</div>
+                    </div>
+                </div>
+            </div>
+        </form>
+        
+        <div><br></div>
+        <div><br></div>
+        <div><br></div>
+    
+    </div>

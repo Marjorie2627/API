@@ -1,0 +1,170 @@
+<div id="wrapper">
+			
+    <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion toggled" id="accordionSidebar"> <!-- Sidebar - Brand -->
+        
+        
+        <hr class="sidebar-divider my-0"/>
+    
+        <!-- Heading -->
+        <!--<div class="sidebar-heading menu_role menu_role_super_admin menu_role_admin" title="ADMINISTRACION">ADMINISTRAR</div>-->
+    
+        <!--Item catálogos-->
+        <li class="nav-item menu_role menu_role_role_admin menu_role_super_admin menu_role_admin" style="display: none;">
+            
+            <a class="nav-link collapsed" id="catalogos" href="#" data-toggle="collapse" data-target="#collapseCatalogos" aria-expanded="true" aria-controls="collapseCatalogos">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+                <span>Catálogos</span>
+            </a>
+            <div id="collapseCatalogos" class="collapse" aria-labelledby="headingCatalogos" data-parent="#accordionSidebar">
+                <div class="bg-white py-2 collapse-inner rounded" id="flotante">
+                    
+                    <a class="collapse-item" style="cursor: pointer;" onclick="minsal_ui_cargar_vista('instituciones');$('#catalogos').click();"><i class="fas fa-syringe mr-1"></i>Vacunas</a>                    
+                    
+                </div>
+            </div>
+
+        </li>
+
+        <!--Item usuarios-->
+        <li class="nav-item menu_role menu_role_role_admin menu_role_super_admin" style="display: none;">
+
+            <a class="nav-link" style="cursor: pointer" onclick="minsal_ui_cargar_vista('usuarios')">
+                <svg xmlns="http://www.w3.org/2000/svg" class="align-middle inline" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M5.52 19c.64-2.2 1.84-3 3.22-3h6.52c1.38 0 2.58.8 3.22 3" />
+                    <circle cx="12" cy="10" r="3" />
+                    <circle cx="12" cy="12" r="10" />
+                </svg>
+                <span>Usuarios</span>
+            </a>
+            
+        </li>
+
+        
+        
+    
+        <!-- Divider -->
+        <hr class="sidebar-divider d-none d-md-block"/>
+    
+        <!-- Sidebar Toggler (Sidebar) -->
+        <div class="text-center d-none d-md-inline">
+            <button class="rounded-circle border-0" id="sidebarToggle"></button>
+        </div>
+    </ul>
+    
+    <!-- Content Wrapper -->
+    <div id="content-wrapper" class="d-flex flex-column"> 
+        
+        <div id="content">
+
+            <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
+                <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3">
+                    <i class="fa fa-bars"></i>
+                </button>
+
+                <!-- Topbar content -->
+                <div class="header-menu-content">
+                    <div class="p-2">
+                        <div class="titulo_establecimiento" id="nombre_establecimiento"></div>
+                    </div>
+                </div>
+                
+                <!-- Topbar Navbar -->
+                <ul class="navbar-nav ml-auto">
+
+                    <div class="topbar-divider d-none d-sm-block"></div>
+
+                    <div class="d-flex justify-content-end">
+                            
+                        <div class="p-0">
+                            <li class="nav-item dropdown no-arrow">
+                                <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    <small class="mr-2 text-gray-600" class="info_usuario" id="menu_nombre_usuario"></small>
+                                    <div id="foto_perfil" style="position: relative; width: 30px; height: 30px; overflow: hidden; border-radius: 50%;"></div>
+                                </a>
+
+                                <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="userDropdown">
+                                    <a class="dropdown-item" href="#">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle>
+                                        </svg>
+                                        Perfil
+                                    </a>
+                                    <div class="dropdown-divider"></div>
+                                    <a class="dropdown-item" href="#" id="btn_logout" >
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M18.36 6.64a9 9 0 1 1-12.73 0"></path><line x1="12" y1="2" x2="12" y2="12"></line>
+                                        </svg>
+                                        Cerrar Sesión
+                                    </a>
+                                </div>
+                            </li>
+                        </div>
+     
+                    </div>
+                </ul>
+            </nav>
+            
+
+            <!-- Begin Page Content -->
+            <div class="container-fluid" id="content">
+                
+                <div id="contenedorprincipal"></div>
+
+                <div id="loading-div-background" class="loading-div-background" style="display: none">
+                    <div class="loading-div" style="background-color: grey; border-radius: 25px" id="loading-div">
+                        <div class="c_msg p-3">
+                            <p class="text-white font-weight-bold">
+                                Procesando información...
+                            </p>
+                            <div class="spinner-border text-warning m-5" style="width: 5rem; height: 5rem" role="status">
+                                <span class="sr-only">Cargando...</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        
+        </div>
+      
+
+        <!-- Footer -->
+        <footer class="sticky-footer bg-white">
+            <div class="container my-auto">
+                <div class="copyright text-center my-auto">
+                    <span>Copyright &copy; Ministerio de Salud de El Salvador 2022</span>
+                </div>
+            </div>
+        </footer>
+        <!-- End of Footer -->
+    </div>
+    <!-- End of Content Wrapper -->
+</div>
+
+<script src="./js/sb-admin-2.js"></script>
+
+<script type="text/javascript">
+   
+    function cambiarEstablecimiento  () {
+		minsal_ui_cargar_vista('admin_cambiar_establecimiento')
+	}
+
+    $('#wrapper .menu-item').on('click', function() {
+        minsal_ui_cargar_vista($(this).attr('data-ref'));
+        
+    });
+
+    $(document).ready(function(){
+        var obj = JSON.parse(getCookie("edata"));
+        let foto = obj['url_foto'];
+
+        if(foto == null){
+            let mi_foto = './img/image.png';
+            $('#foto_perfil').append('<img class="img-profile rounded-circle" style="width: 100%; height: auto;" alt="" src="' + mi_foto + '">');
+        }else{
+            let mi_foto =  g_url_fotos + foto;
+            $('#foto_perfil').append('<img class="img-profile rounded-circle" style="height: 40px; margin:auto;" alt="" src="' + mi_foto + '">');
+        }
+    });
+    
+</script>

@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>Vacunación - Login</title>
+
+    <!-- Custom fonts for this template-->
+    <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
+    <link
+        href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
+        rel="stylesheet">
+
+    <!-- Custom styles for this template-->
+    <link href="css/sb-admin-2.css" rel="stylesheet">
+    <link rel="shortcut icon" href="img/favicon.png">
+
+</head>
+
+<body>
+
+    <div class="flex-card-container">
+
+        <div class="card shadow-lg" style="border-radius: 1.5rem;">
+
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-sm-12">
+
+                        <div class="">
+
+                            <div class="text-center" id="contenedor">
+                                <img src="img/Logo5.png" width="40%" alt="logo" class="rounded-circle">
+                                <h1 class="h4 text-gray-900 mb-4 underlineHover">Iniciar sesión</h1>
+                            </div>
+
+                            <form class="user" id="form-login" method="get">
+
+                                <div class="form-group">
+                                    <label for="">Usuario:</label>
+                                    <input type="text" class="form-input" name="txtUsuario" id="txtUsuario"
+                                        placeholder="Usuario" autocomplete="off">
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="">Contraseña:</label>
+                                    <input type="password" class="form-input" name="txtPass" id="txtPass"
+                                        placeholder="Contraseña" autocomplete="off">
+                                </div>
+                                <br>
+
+                                <div class="text-center">
+                                    <button id="btn_login" type="button"
+                                        class="btn btn-primary btn-block">INGRESAR</button>
+                                </div>
+                                <br>
+                                <div id="msg" class="text-center border-blue-500 border p-4 font-bold mb-4 md:mb-8"
+                                    style="display: none; background: #CDF1FE;">MSG</div>
+
+                            </form>
+
+                            <div class="container-fluid" id='content'>
+
+                                <div id="contenedorprincipal"></div>
+
+
+                                <div id="loading-div-background" class="loading-div-background" style="display: none;">
+                                    <div class="loading-div" style="background-color: grey; border-radius: 25px;"
+                                        id="loading-div">
+
+                                        <div class="c_msg p-3">
+                                            <p class="text-white font-weight-bold">Procesando información...</p>
+                                            <div class="spinner-border text-warning m-5"
+                                                style="width: 5rem; height: 5rem;" role="status">
+                                                <span class="sr-only">Cargando...</span>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </div>
+
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Bootstrap core JavaScript-->
+    <script src="vendor/jquery/jquery.min.js"></script>
+    <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Core plugin JavaScript-->
+    <script src="vendor/jquery-easing/jquery.easing.min.js"></script>
+
+    <!-- Custom scripts for all pages-->
+    <script src="js/sb-admin-2.min.js"></script>
+    <script src="js/comun.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.0.0/crypto-js.min.js"
+        integrity="sha512-nOQuvD9nKirvxDdvQ9OMqe2dgapbPB7vYAMrzJihw5m+aNcf0dX53m6YxM4LgA9u8e9eg9QX+/+mPu8kCNpV2A=="
+        crossorigin="anonymous"></script>
+    <script src="js/config.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/imask/6.0.5/imask.min.js"
+        integrity="sha512-0ctiD2feH7vdHZ5jjAKNYts4h+IBRq7Nm5wACMJG1Pj5AQyprSHzX/ijMm77AcLLW5cemQptH+9EcviiKCC0cQ=="
+        crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.2/jquery.validate.min.js"
+        integrity="sha512-UdIMMlVx0HEynClOIFSyOrPggomfhBKJE28LKl8yR3ghkgugPnG6iLfRfHwushZl1MOPSY6TsuBDGPK2X4zYKg=="
+        crossorigin="anonymous"></script>
+</body>
+
+<script type="text/javascript">
+
+    /*var mask = IMask(document.getElementById('txtUsuario'), {
+        mask: '00000000-0'
+    });*/
+
+    var validator1 = $("#form-login").validate({
+        rules: {
+            txtUsuario: {
+                required: true
+            },
+            txtPass: {
+                required: true
+            }
+        },
+        messages: {
+            txtUsuario: "Por favor escriba su DUI",
+            txtPass: "Por favor escriba su Contraseña"
+        }
+    });
+
+
+    $("#btn_login").click(function () {
+        login();
+        event.preventDefault();
+    });
+
+    $(document).on("keydown", ":input:not(textarea)", function (event) {
+        if (event.key == "Enter") {
+            $("#btn_login").click();
+            event.preventDefault();
+        }
+    });
+
+
+    function login() {
+
+        if ($("#form-login").valid() == true) {
+
+            var user = $("#txtUsuario").val();
+            var pass = $("#txtPass").val();
+
+
+            /*$('#txtUsuario_err').empty();
+            $('#txtPass_err').empty();
+            if (user == '') {
+                $('#txtUsuario_err').html("<span class='text-danger'>Por favor ingrese su usuario</span>");
+                $('#txtUsuario').focus();
+                return false;
+            }
+    
+            if (pass == '') {
+                $('#txtPass_err').html("<span class='text-danger'>Por favor ingrese su contraseña</span>");
+                $('#txtPass').focus();
+                return false;
+            }*/
+
+            datos = {
+                "usuario": $("#txtUsuario").val(),
+                "password": $("#txtPass").val()//CryptoJS.MD5($("#txtPass").val()).toString()
+            };
+            event.preventDefault();
+            url = api_url + 'api/autenticar';
+            $.ajax({
+                url: url,
+                data: JSON.stringify(datos),
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                success: function (msg) {
+                    console.log(msg);
+                    setCookie("token", msg.access_token, 1);
+
+                    var f = new Date();
+                    f.setSeconds(f.getSeconds() + msg.expires_in)
+                    setCookie("token_expire", f.toString(), 1)
+
+                    setCookie("edata", JSON.stringify(msg.user), 1);
+                    var obj = JSON.parse(getCookie("edata"));
+                    ui_token();
+                    sesion();
+                },
+                error: function (jqXHR, status, err) {
+                    $('#msg').html("Usuario o contraseña Incorrectos").show();
+                },
+
+            });
+
+        }
+    }
+
+    function ui_token() {
+
+        if (getCookie('token')) {
+            try {
+                var obj = JSON.parse(getCookie("edata"));
+            } catch (e) {
+                destCookie();
+                ui_token();
+            }
+            document.location.href = dns;
+            //window.location.hostname = 'index.html';
+        } else {
+            destCookie();
+            // iniciar_estado();
+
+            //minsal_ui_cargar_vista('login', false);
+            //document.location.href = 'login.html';
+            $("#contenedormenu").html("");
+            $("#menu_nombre_usuario").html("Administrador");
+        }
+    }
+
+    $(function () {
+        ui_token();
+    });
+
+    function setCookie(cname, cvalue, exdays) {
+        if (typeof (Storage) !== 'undefined') {
+            if (exdays === -1) {
+                sessionStorage.removeItem(cname);
+            } else {
+                sessionStorage.setItem(cname, cvalue);
+            }
+        } else {
+            Cookies.set(cname, cvalue, {
+                expires: exdays
+            });
+        }
+
+    }
+
+    function sesion() {
+        var usuario = JSON.parse(getCookie("edata"));
+        let datos = {
+            id_usuario: usuario['id_usuario'],
+            sesion: true
+        };
+        url = api_url + 'sesion';
+        $.ajax({
+            async: false,
+            url: url,
+            data: JSON.stringify(datos),
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+            },
+            success: function (data) {
+                minsal_set_cookie_key('edata', 'sesion', 1);
+                console.log(data);
+            },
+            error: function (jqXHR, status, err) {
+                console.log(err);
+            },
+        });
+    }
+
+    function getCookie(cname) {
+        if (typeof (Storage) !== 'undefined') {
+            return sessionStorage.getItem(cname);
+        } else {
+            return Cookies.get(cname);
+        }
+    }
+
+    function checkCookie() {
+        var user = getCookie("token");
+    }
+
+    function destCookie() {
+        setCookie("token", "", -1);
+    }
+
+    function destCookie2(param) {
+        setCookie(param, "", -1);
+    }
+
+
+    function toggle_prop(id) {
+        var g = document.getElementById(id);
+        if (g.disabled == false) {
+            g.disabled = true;
+        } else {
+            g.disabled = false;
+        }
+    }
+
+    function toggle_show(id) {
+        var e = document.getElementById(id);
+
+        if (e.style.display == 'none') {
+            e.style.display = 'block';
+        } else {
+            e.style.display = 'none';
+        }
+    }
+
+    function ShowProgressAnimation() {
+        $("#loading-div-background").show();
+    }
+
+    function HideProgressAnimation() {
+        $("#loading-div-background").hide();
+    }
+
+    jQuery.ajaxSetup({
+        timeout: 60000,
+        cache: false,
+        beforeSend: function () {
+            ShowProgressAnimation();
+        },
+        complete: function () {
+            HideProgressAnimation();
+        },
+        success: function () { }
+    });
+</script>
+
+</html>

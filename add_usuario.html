@@ -1,0 +1,273 @@
+<style>
+    .round-div 	{	border-radius: 15px 15px 15px 15px;	}
+    .uppercase {
+        text-transform: uppercase;
+    }
+</style>
+
+<script>
+
+    /*Mostrando opciones según rol*/
+    var usuario = JSON.parse(getCookie("edata"));
+    var existe  = false;
+
+    var caseMask = IMask(document.querySelector('#u_nickname'), {
+        mask: /^\w+$/,
+        prepare: function (str) {
+            return str.toLowerCase().replace(/_/, '');
+        },
+    });
+
+
+    $('.menu_role').hide();
+
+    $(usuario.roles.activos).each( (idx, el) => {
+        $('.menu_role_' + el.rol).show();
+    });
+
+    /*IMask(document.getElementById('dui'), {
+            mask: '00000000-0'
+    });*/
+
+    var validator1 = $("#form-usuario").validate({
+            rules: {
+                u_nombres: { required: true },
+                u_apellidos: { required: true },
+                u_nickname: {required: true},
+                u_password: {required: true, minlength:6},
+                id_institucion: {required: true}
+            },
+            messages: {
+                u_nombres: {required:"Por favor ingrese los nombres de la persona"},
+                u_apellidos: {required:"Por favor ingrese los apellidos de la persona"},
+                u_nickname: {required: "Por favor ingrese el nickname"},
+                u_password: {required: "Por favor ingrese la contraseña",minlength: "La contraseña debe contener al menos 6 caracteres"},
+                id_institucion: "Por favor ingrese la institución",
+            }
+    });
+
+
+    function guardar(){
+        const nombres = $('#u_nombres').val().trim() +' ' + $('#u_apellidos').val().trim()
+        const nickname = $('#u_nickname').val().trim().toLowerCase()
+        const password = ($('#u_password').val()).trim()
+        //const passwordHashed = (CryptoJS.MD5(nickname + ":" + password)).toString()
+        const passwordHashed = (CryptoJS.MD5(password)).toString()
+
+
+        if( $('#btn_roles').attr('data-ref') === 'false' ){
+            var roles = [];
+            $.each($("input[name='roles']:checked"), function() {
+                roles.push($(this).val());
+            });
+
+            if ( roles.length == 0 ) {
+                alert('Debe de seleccionar al menos un rol');
+                return false;
+            }
+        }
+
+        const datos = {
+            "nombre": nombres.toUpperCase(), 
+            "usuario"    : nickname,
+            "hash" : passwordHashed,
+            "id_institucion" : parseInt($('#id_institucion').val()),            
+        }            
+        
+
+        minsal_post('usuarios/create', (data) => {
+		console.log(data)
+                minsal_modal('Aviso', 'Guardado correctamente');
+                regresar();                
+		    },(jqXHR, status, err) => {
+                minsal_modal('Error al guardar el usuario', 'Ocurrió un error desconocido');
+		    },
+            datos
+		);
+    }
+
+    $('#u_nickname').on('focusout', function() {
+        userExist()
+    })
+
+    function userExist() {
+        minsal_get('/usuarios/findbynickname/'+$('#u_nickname').val().trim()
+            ,(data) => {                
+
+                if (data.resultado == 'OK') {
+                    minsal_modal('Error', 'Usuario ya existe, intente con otro nickname')
+                    $('#btn_guardar').prop('disabled', true)
+                    return true
+                }
+                if (data.resultado == 'NOTFOUND') {
+                    // minsal_modal('Error', 'Usuario ya existe, intente con otro nickname')
+                    $('#btn_guardar').prop('disabled', false)
+                    return false
+                }
+            }
+            ,(err) => {
+
+            })
+    }
+
+    $("#btn_guardar").click(function () {
+        
+        if ($("#form-usuario").valid() == true) {
+            guardar()
+        }
+
+        return false
+    });
+
+    $('#btn_roles').click(function(){
+        if( $(this).attr('data-ref') === 'true' ){
+            $('#btn_acciones').hide();
+            $('#btn_roles').attr('data-ref',false);
+        
+            let test = ``;
+            test = document.getElementById('btn_acciones_segundo');
+            test.innerHTML =    `<button type="button" class="btn btn-primary btn-sm" id="btn_guardar" onclick="guardar()">\
+                                    Guardar\
+                                </button>\
+                                <button type="button" class="btn btn-warning btn-sm"  id="btn_cancelar" onclick="regresar()">\
+                                    Cancelar\
+                                </button>`
+           
+        }else if ( $(this).attr('data-ref') === 'false' ){
+            $('#btn_acciones').show();
+            $('#btn_roles').attr('data-ref',true);
+           
+            let test = ``;
+            test = document.getElementById('btn_acciones_segundo');
+            test.innerHTML = "";
+
+            var x = document.getElementsByName("roles");
+            var i;
+            for (i = 0; i < x.length; i++) {
+                if (x[i].type == "checkbox") {
+                    x[i].checked = false;
+                }
+            }
+        }
+    });
+
+    function regresar(){
+        $('#u_nombres').val("");
+        $('#u_apellidos').val("");
+        $('#u_nickname').val("");
+        $('#u_password').val("");
+        $('#id_institucion').val("");
+    }
+
+
+    function getInstituciones(){
+        minsal_get('instituciones/list',
+                    (data) => {
+                        if(data['resultado'] == "OK"){
+                            $('#id_institucion').append('<option value="">-- Seleccionar --</option>');
+                            for (const institucion of data['datos']) {                        
+                                $('#id_institucion').append('<option value="'+institucion.id+'">'+institucion.nombre_institucion+'</option>');
+                            }                        
+                        }else if(msg['resultado'] == "ERROR"){
+                            minsal_modal('Error','No existen vacunas registradas.');
+                            return false;
+                        }
+                    },
+                    (err) => {
+
+                    }
+        )
+    }
+
+    $('#btn_back').click(function(){
+        minsal_ui_cargar_vista('usuarios')
+    });
+
+    
+$(document).ready(function () { 
+        getInstituciones()
+        $.fn.select2.defaults.set("theme", "bootstrap4");
+
+        /* Agregar funcionalidad de input y select a la vez
+        * $.fn.select2.defaults.set("tags", true);
+        */        
+        
+
+        $('#id_institucion').select2();
+                                
+
+        // $('#ayuda').tooltip({title: "<b><code>INFORMACION</code></b><BR> Si desea registrar un nuevo lote de vacuna hacerlo desde esta pantalla. Si se recibe nueva cantidad del mismo lote, lo hara de esta pantalla", html: true, placement: "bottom"});
+            //la etiqueta <em></em> deja el texto cursiva dentro del tooltip
+            //la etiqueta <code></code> deja el texto morado y formateado para codigo fuente dentro del tooltip
+        
+    });
+
+</script>
+
+<div class="contenido">
+	<div id="div_ini" class="container-fluid">
+		<h1 class="text-center mb-2 md:mb-4 leading-tight titulo">AGREGAR USUARIO </h1> 
+        <div class="d-flex justify-content-end mb-3">
+            <button class="btn btn-sm btn-warning" id="btn_back">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 16l-6-6 6-6"/><path d="M20 21v-7a4 4 0 0 0-4-4H5"/></svg>
+                Regresar
+            </button>
+        </div>
+		
+		<form id="form-usuario" method="get" novalidate="novalidate" autocomplete="off">
+				
+                <div class="p-4 shadow bg-white round-div">                                       
+                    
+                    <div class="container-fluid">
+                        
+                        <div class="row">
+                            <div class="col-sm-12">
+                                
+                                <div class="form-group">
+                                    <label for="u_nombres" class="form-label">Ingrese nombres de la persona que será usuario *</label>
+                                    <input type="text" name="u_nombres" id="u_nombres" placeholder="Nombres" required="required"	class="form-input uppercase" autocomplete="off">									
+                                </div>
+                                <div class="form-group">
+                                    <label for="u_apellidos" class="form-label">Ingrese apellidos de la persona que será usuario *</label>
+                                    <input type="text" name="u_apellidos" id="u_apellidos" placeholder="Apellidos" required="required"	class="form-input uppercase" autocomplete="off">									
+                                </div>
+                                <div class="form-group">
+                                    <label for="u_nickname" class="form-label">Ingrese el nickname *</label>
+                                    <input type="text" name="u_nickname" id="u_nickname" placeholder="NICKNAME" required="required"	class="form-input" autocomplete="off">									
+                                </div>
+                                <div class="form-group">
+                                    <label for="u_password" class="form-label">Ingrese la contraseña *</label>
+                                    <input type="password" name="u_password" id="u_password" placeholder="PASSWORD" required="required"	class="form-input" autocomplete="off">									
+                                </div>
+                                <div class="form-group">
+                                    <label for="id_institucion" class="form-label">Seleccione institucion *</label>
+                                    <select class="form-control input-lg" name="id_institucion" id="id_institucion">
+                                        
+                                    </select>                                   
+                                </div>
+
+                                
+                                <div class="form-group">
+                                    <div class="mt-2" style="text-align: center;" id="b_dui">
+										<button type="button" class="btn btn-outline-info" id="btn_guardar">Guardar</button>
+									</div>
+                                </div>
+
+							</div>
+                        </div>
+                        
+
+					</div>
+					<br>
+					<div class="text_r text-xs text-gray-700 ">* Campos requeridos</div>							
+				</div>
+               
+		</form>
+	</div>
+	
+</div>
+<div>
+    <br>
+    <br>
+    <br>
+</div>

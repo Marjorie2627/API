@@ -1,0 +1,143 @@
+<style>
+	
+</style>
+<script>
+
+	var usuario = JSON.parse(getCookie("edata"));
+	roles_id = [];
+	$(usuario.roles.activos).each( (idx, el) => {
+		roles_id.push(el.id);
+	});
+
+    function nuevo(){
+		minsal_ui_cargar_vista('add_vacunador')
+	}
+
+	function cambiarEstablecimiento(idEmpleado){
+		setCookie("id_empleado", idEmpleado, 1);
+		minsal_ui_cargar_vista('vacunador_cambiar_establecimiento')
+	}
+
+	function deshabilitar(idEmpleado,nombre){
+		
+		if(confirm("¿Desea cambiar el estado al vacunador?: "+nombre)){
+			
+			datos = {
+				"id_empleado" : parseInt(idEmpleado),
+			};
+
+			url = api_url + 'admin/vacunadores/cambio_estado';
+
+			$.ajax({
+				url: url,
+				data: JSON.stringify(datos),
+				method: 'PUT',
+				headers: {
+					'Content-Type': 'application/json',
+					'Accept': 'application/json',
+					'Authorization': getCookie('token') || ''
+				},
+				success: function (data) {
+					if(data['resultado'] == "OK"){
+						alert('Se cambió el estado al vacunador.');
+						minsal_ui_cargar_vista('vacunadores')
+					}
+				},
+			});
+		}
+	}
+
+	function cargarVacunadores(){
+
+		var miTabla = $('#main-table').DataTable({
+				language: {
+							url: 'https://cdn.datatables.net/plug-ins/1.10.22/i18n/Spanish.json'
+						},
+				ordering:false,
+				dom: 'frtip',
+		});
+
+		minsal_get('admin/vacunadores/index', (data) => {
+			console.log(data);
+			data.datos['data'].forEach((elm, idx) => {
+				
+				let color    = elm.estado == 1 ? 'success' : 'danger';
+				let estado   = elm.estado == 1 ? 'Activo' : 'Inactivo';
+				let acciones = '<a type="button" title="Cambiar de Establecimiento" onclick="cambiarEstablecimiento('+elm.id_empleado+')" class="btn bg-white btn-sm rounded">'+
+									'<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#17a2b8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 2.1l4 4-4 4"/><path d="M3 12.2v-2a4 4 0 0 1 4-4h12.8M7 21.9l-4-4 4-4"/><path d="M21 11.8v2a4 4 0 0 1-4 4H4.2"/></svg>'+
+								'</a> '+
+								
+								'<a type="button" title="Deshabilitar Vacunador" onclick="deshabilitar('+elm.id_empleado+',&#39;'+elm.nombre+'&#39;)" class="btn bg-white btn-sm rounded">'+
+									'<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#dc3545" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"> <circle cx="12" cy="12" r="10"/><path d="M16 12l-4 4-4-4M12 8v7"/></svg>'+
+								'</a>';
+
+				if( elm.estado == 0 ){
+					acciones = '<a type="button" title="Cambiar de Establecimiento" onclick="cambiarEstablecimiento('+elm.id_empleado+')" class="btn bg-white btn-sm rounded">'+
+									'<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#17a2b8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 2.1l4 4-4 4"/><path d="M3 12.2v-2a4 4 0 0 1 4-4h12.8M7 21.9l-4-4 4-4"/><path d="M21 11.8v2a4 4 0 0 1-4 4H4.2"/></svg>'+
+								'</a> '+
+								
+								'<a type="button" title="Habilitar Vacunador" onclick="deshabilitar('+elm.id_empleado+',&#39;'+elm.nombre+'&#39;)" class="btn bg-white btn-sm rounded">'+
+									'<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#007bff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M16 12l-4-4-4 4M12 16V9"/></svg>'+
+								'</a> ';
+				}
+
+				miTabla.row.add([
+						'<p>' + elm.nombre +'</p>',
+						'<p class="text-center">' + elm.dui + '</p>',
+						'<p class="text-center">' + elm.modalidad + '</p>',
+						'<p class="text-center">' + elm.modulo + '</p>',
+						'<p class="text-center">' + "<span class='badge badge-" + color + "'>"+ estado + "</span>" +'</p>',
+						'<p>' + acciones +'</p>',]).draw().node();
+			});
+
+		}, (jqXHR, status, err) => {}
+		);
+	}
+
+	$(document).ready(function(){
+		cargarVacunadores();
+	});
+</script>
+
+<div class="contenido">
+
+    <!--<h1 class="h3 mb-2 text-gray-800">Usuarios</h1><br>-->
+		<div class="card shadow bg-white round-div">
+            <div class="card-header py-3">Listado de vacunadores <i id='ayuda' class="fas fa-question-circle fa-fw" style="float:right;cursor: pointer"></i></div>
+				<div class="container-fluid p-3">
+					<div class="row">
+						<div class="col-sm-12 ">
+							<br>
+							<button type="button" class="btn btn-sm btn-success"  onclick="nuevo()"> 
+								<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+									<circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line>
+								</svg>
+								Nuevo 
+							</button>
+							
+                            <div class="table-responsive" >
+                                <table class="table" id="main-table" style="font-size: 14px; table-layout:fixed; word-wrap: break-all;">
+                                    <thead class="text-center">
+                                        <tr>
+                                            <th width='200px'>Nombre</th>
+                                            <th width='100px'>Dui</th>
+                                            <th width='100px'>Modalidad</th>
+                                            <th width='150px'>Modulo</th>
+                                            <th width='60px'>Estado</th>
+                                            <th width='150px'>Acciones</th>
+                                        </tr>
+                                        
+                                    </thead>
+                                    <tbody>
+    
+                                    </tbody>
+                                </table>
+                            </div>
+						
+						</div>
+					</div>
+				</div>
+			</div>
+
+	
+</div>

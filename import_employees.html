@@ -1,0 +1,105 @@
+
+<style>
+
+    .main-wrap{
+        width: 100%;
+        margin:0 auto;
+    }
+    input[type="file"]{
+        color: rgb(2, 52, 140);
+    }
+
+    .button-wrap {
+        position: relative;
+    }
+    .small{
+        font-size: 14px;
+    }
+</style>
+
+<script>
+
+    /*var validator1 = $("#form-import").validate({
+        rules: {
+                inputFile: { required: true },
+            },
+        messages: {
+                inputFile: "Por favor seleccione un archivo",
+            },
+        errorPlacement: function (error, element) {
+           if (element.attr('name') == 'inputFile') {
+                error.insertAfter(element);
+                error.addClass('text-danger small');
+            } else {
+                 error.insertAfter(element);
+            }
+        }
+    });*/
+
+
+    $('#inputFile').change(function(){
+        
+        $('#file_err').empty();
+        
+        let ext = $(this).val().split('.').pop().toLowerCase();
+        
+        if($.inArray(ext, ['xls','xlsx']) == -1) {
+            $('#file_err').html("<span class='text-danger small'>Formato no valido</span>");
+            $('#inputFile').val('');
+            return false;
+        }
+        
+    });
+
+    $('#btn_import').click(function () {
+
+        $('#file_err').empty();
+
+        if ( $('#inputFile').val() == '') {
+            $('#file_err').html("<span class='text-danger small'>Debe de seleccionar un archivo</span>");
+            $('#file_err').focus();
+            return false;
+        }
+
+        alert('Works!');
+        /*if ( $("#form-import").valid() == true) {
+            alert('Works!');
+        }*/
+    });
+    
+</script>
+
+<div class="contenido">
+   
+    <div class="container">
+        <h1 class="text-center mb-4 md:mb-4 leading-tight titulo">
+            IMPORTAR USUARIOS
+        </h1>
+        
+        <form id="form-import">
+            <div style="position: relative; margin-top:18%;">
+                <div class="row">
+                    <div class="col align-self-start"></div>
+                    <div class="col align-self-center">
+                        <div class="form-group">
+                            <label for="inputFile"></label>
+                            <input type="file" id="inputFile" name="inputFile" class="file-in" >
+                            <div id="file_err"></div>
+                            <p class="help-block">Ingrese archivo en formato xls,xlsx</p>
+                        </div>
+                    </div>
+                    <div class="col align-self-end"></div>
+                </div>
+                <div class="row">
+                    <div class="col align-self-start"></div>
+                    <div class="col align-self-center">
+                        <button type="button" class="btn btn-success btn-block" id="btn_import">Subir</button>
+                    </div>
+                    <div class="col align-self-end"></div>
+                </div>
+            </div>
+        </form>
+       
+    </div>
+
+</div>

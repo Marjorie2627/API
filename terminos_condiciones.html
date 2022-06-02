@@ -1,0 +1,550 @@
+<style>
+    .select2{
+        width: 100% !important;
+    }
+
+   
+</style>
+<script>
+
+    var termConditions = new Array();
+    function cleanData(){
+
+    }
+
+    function cargarSelectVacuna(){
+        url = api_url + 'admin/vacuna/index';
+        $.ajax({
+            url: url,            
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'Authorization': getCookie('token')
+            },
+            url:url,
+            success: function (data) {                                
+                if(data['resultado'] == "OK"){
+                    for (const vaccine of data['datos'].list_vacuna) {                        
+                        $('#id_vacuna').append('<option value="'+vaccine.id+'">'+vaccine.nombre_comercial+'</option>');
+                    }
+                }else if(msg['resultado'] == "ERROR"){
+                    minsal_modal('Error','No existen vacunas registradas.');
+                    return false;
+                }
+            }
+        });
+    }
+    function limpiarInput () {
+        $('#id_vacuna').val('0').trigger('change');
+        $("#version").val('');
+        $("#descripcion").summernote('code', '');
+
+        $('#error_version').html('');
+        $('#error_descripcion').html('');
+    }
+
+    $("#btn_add").click(function() {
+        event.preventDefault();
+        if($('#btn_add').val() == 'Guardar')
+            nuevo();
+        if($('#btn_add').val() == 'Modificar')
+            modificar();
+    });
+
+    function cargarVerMas(descripcionTerminos){
+        
+        $('#ventanaVerMas').modal();
+        $('#titulo_modal').html('Descripcion Terminos y Condiciones');
+        $('#desc_term_condition').html(descripcionTerminos);  
+
+    }
+
+    function nuevo(){
+        let vacuna = $('#id_vacuna').val();
+        let version = $("#version").val();
+        let descripcion = $("#descripcion").val();
+
+        $('#error_version').empty();
+        $('#error_descripcion').empty();
+        
+        if (version == '') {
+            $('#error_version').html("<span class='text-danger'>Por favor ingrese el version de los terminos y condiciones</span>");
+            $('#error_version').focus();
+            return false;
+        }
+        if (descripcion == '') {
+            $('#error_descripcion').html("<span class='text-danger'>Por favor ingrese la descripcion de los terminos y condiciones</span>");
+            $('#error_descripcion').focus();
+            return false;
+        }
+        
+
+        datos = {
+                "id_vacuna":vacuna,            
+                "version":version,
+                "descripcion":descripcion,                
+        };                
+        url = api_url + 'admin/terminos_condiciones/store';
+        $.ajax({
+            url: url,
+            data: JSON.stringify(datos),
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'Authorization': getCookie('token')
+            },
+            success: function (msg) {
+                if(msg['resultado'] == "OK"){
+                    minsal_modal('Información','Registro guardado correctamente.');
+                    minsal_ui_cargar_vista('terminos_condiciones');
+                }else if(msg['resultado'] == "ERROR"){
+                    minsal_modal('Error','Error al intentar guardar los términos y condiciones.');
+                    return false;
+                }
+            }
+        });
+
+        $('#ventana1').modal('hide');        
+    }
+
+    function cargarModificar(idTermCondition, id_vacuna, version, descripcion){
+        limpiarInput();        
+            $('#id_term_condition').val(idTermCondition);                                 
+            $('#titulo_modal').html('Modificar Termino y Condicion');
+            $('#btn_add').val('Modificar');
+
+            $("#id_vacuna").val(id_vacuna).trigger('change');
+            $("#version").val(version); 
+            
+            
+            
+            $("#descripcion").summernote('code', descripcion);
+            
+            $('#ventana1').modal('show');                                                                                        
+        
+    }
+
+
+
+    function modificar(){
+        
+        let version = $("#version").val();
+        let descripcion = $("#descripcion").val();
+        let idVacuna = $("#id_vacuna").val();
+        let idTermCondition = $("#id_term_condition").val();        
+
+        datos = {
+                "id":idTermCondition,
+                "version":version,
+                "descripcion":descripcion,                
+                "id_vacuna":idVacuna,                
+        };
+        
+                
+        $('#error_descripcion').empty();
+        
+        if (descripcion == '') {
+            $('#error_descripcion').html("<span class='text-danger'>Por favor ingrese la dirección de la institución</span>");
+            $('#error_descripcion').focus();
+            return false;
+        }       
+
+        
+
+        url = api_url + 'admin/terminos_condiciones/update';
+        $.ajax({
+            url: url,
+            data: JSON.stringify(datos),
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'Authorization': getCookie('token')
+            },
+            success: function (msg) {
+                if(msg['resultado'] == "OK"){
+                    minsal_modal('Información','Los terminos y condiciones han sido modificados correctamente.');
+                    minsal_ui_cargar_vista('terminos_condiciones');
+                }else if(msg['resultado'] == "ERROR"){
+                    minsal_modal('Error','Error al intentar modificar los terminos y condiciones.');
+                    return false;
+                }
+            }
+        });
+
+        $('#ventana1').modal('hide');
+
+    }
+
+    function cargar (){
+        url = api_url + 'admin/terminos_condiciones/index';
+        $.ajax({
+            async: true,
+            method: "GET",
+            crossDomain: true,
+            mode: 'cors',
+            headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'Authorization': getCookie('token')
+            },
+            url: url,
+                error: function (jqXHR, textStatus, errorThrown) {
+                    $('#content_primary').html('<center><div class="alert alert-dark"><p>¡No existe ningún término y condición registrado hasta este momento!. De click en el botón <b>Nuevo</b> para ingresar uno</p></div></center>');
+                        return false;
+                }, 
+                success: function (data) {					
+                    var html = "";
+                    var contador = 1;
+
+
+                    if(data['resultado'] == "NOTFOUND"){
+                        $('#content_primary').html('<center><div class="alert alert-dark"><p>¡No existe ningún término y condición registrado hasta este momento!. De click en el botón <b>Nuevo</b> para ingresar uno</p></div></center>');
+                        return false;
+                    }                                        
+
+                    html += `<div class='table-responsive'><table id='table1' class='table table-striped table-hover' style='font-size: 14px; table-layout:fixed; word-wrap: break-all;' data-pagination='true'> 
+                                    <thead> 
+                                        <tr> 
+                                            <th width='50px'><center>N°</center></th> 
+                                            <th width='75px'><center>Nombre vacuna</center></th> 
+                                            <th width='100px'><center>Version</center></th> 
+                                            <th width='250px'><center>Descripcion</center></th> 
+                                            <th width='50px'><center>Estado</center></th> 
+                                            <th width='100px'><center>Acciones</center></th> 
+                                        </tr> 
+                                    </thead> 
+                                    <tbody>`;
+                                                        
+                    
+                    $.each(data['datos']['terms_conditions'], function (key, value) {
+                        var boton = "";
+                        
+                        
+                        if(value.estado == 1 || value.estado == 0){//Los borrados fisicamente no los muestra
+                            if(value.estado == 0)
+                            boton = "<button type='button' title='Activar' class='btn  custom-action-btn-table' onclick='activar("+value.id+",\""+value.id_vacuna+"\");'><i class='fa fa-arrow-up'></i></button> &nbsp;&nbsp;";
+                            
+                            else
+                                boton = "<button type='button' title='Desactivar' class='btn  custom-action-btn-table' onclick='desactivar("+value.id+",\""+value.id_vacuna+"\");'><i class='fa fa-arrow-down'></i></button> &nbsp;&nbsp;";
+                            
+                            
+                            /*html += "<tr><td style='width:33px'><center>"+contador+"</center></td><td style='width:67.5px'>"+value.version+"</td>\
+                                                <td style='width:85px'>"+(value.descripcion).split(' ').slice(0, 3).join(' ')+"...<a class='link-primary cursor-pointer' onclick='cargarVerMas("+JSON.stringify((value.descripcion).replace('\n','<br>'))+")'> ver mas</a></td>\
+                                                <td style='width:58px'><center><h5>"+((value.estado) == 1 ?"<span class='badge badge-success'>Activo</span>":"<span class='badge badge-danger'>Inactivo</span>")+"</h5></center></td>\
+                                                <td><center><div class='u-row-column-align'><button type='button' title='Editar' class='btn btn-info custom-action-btn-table' onclick='cargarModificar("+value.id+","+value.id_vacuna+","+JSON.stringify(value.version)+","+JSON.stringify((value.descripcion).replace('\n',''))+")'><i class='fa fa-pencil-alt'></i></button> &nbsp;&nbsp;\
+                                                    <button type='button' title='Eliminar' class='btn btn-danger custom-action-btn-table' onclick='eliminar("+value.id+");'><i class='fa fa-trash-alt'></i></button></div></center>\
+                                                </td>\
+                                            </tr>";*/
+                            
+                            let descripcion = (value.descripcion).replace("'","\\&#39;");
+                            let subsDescripcion = (descripcion.replace(/<[^>]*>/g, '', "").substring(0, 15)).replace("\\","");
+
+                            html += `<tr>
+                                        <td><center>${contador}</center></td>
+                                        <td>${value.nombre_comercial}</td>
+                                        <td>${value.version}</td>
+                                        <td>${(subsDescripcion)}...<a class='link-primary cursor-pointer' onclick='cargarVerMas(&#39;${descripcion}&#39;)'> ver mas</a></td>
+                                        <td><center><h5>${((value.estado) == 1 ? "<span class='badge badge-success'>Activo</span>":"<span class='badge badge-danger'>Inactivo</span>")}</h5></center></td>
+                                        <td>
+                                            <div class='u-row-align'>
+                                                <button type='button' title='Editar' class='btn  custom-action-btn-table' onclick='cargarModificar(${value.id},${value.id_vacuna},${JSON.stringify(value.version)},&#39;${descripcion}&#39;)'><i class='fa fa-pencil-alt'></i></button> &nbsp;&nbsp ${boton}
+                                                <button type='button' title='Eliminar' class='btn  custom-action-btn-table' onclick='eliminar(${value.id},${JSON.stringify(value.nombre_comercial)});'><i class='fa fa-trash-alt'></i></button>
+                                            </div>
+                                        </td>
+                                    </tr>`;
+
+                            contador++;
+                        }
+                    });
+
+                    html += "</tbody></table></div>";
+                    
+                    
+
+                    $('#content_primary').html(html);
+                    $('#table1').DataTable({				
+                        language: {
+                            url: 'https://cdn.datatables.net/plug-ins/1.10.22/i18n/Spanish.json'
+                        }
+                    });
+                    
+                }
+            });
+        
+    }
+
+    function activar(idTermCondition, idVacuna){
+        let callback = function() {
+            datos = {
+                    "id":idTermCondition,
+                    "estado":1,
+                    "id_vacuna":idVacuna
+            };
+
+            url = api_url + 'admin/terminos_condiciones/activate';
+            $.ajax({
+                url: url,
+                data: JSON.stringify(datos),
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'Authorization': getCookie('token')
+                },
+                success: function (msg) {
+                    if(msg['resultado'] == "OK"){
+                        minsal_modal('Información','Terminos y Condiciones activada correctamente.');
+                        minsal_ui_cargar_vista('terminos_condiciones');
+                    }else if(msg['resultado'] == "ERROR"){
+                        minsal_modal('Error','Error al intentar activar el Termino y Condición.');
+                        return false;
+                    }
+                }
+            });
+        };
+        minsal_confirm("Confirme","Desea activar este termino y condicion?<br>","Cancelar","Aceptar", callback);
+    }
+
+
+    function desactivar(idTermCondition, idVacuna){
+        let callback = function() {
+            datos = {
+                    "id":idTermCondition,
+                    "estado":0,
+                    "id_vacuna":idVacuna
+            };
+
+            url = api_url + 'admin/terminos_condiciones/activate';
+            $.ajax({
+                url: url,
+                data: JSON.stringify(datos),
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'Authorization': getCookie('token')
+                },
+                success: function (msg) {
+                    if(msg['resultado'] == "OK"){
+                        minsal_modal('Información','Terminos y Condiciones desactivada correctamente.');
+                        minsal_ui_cargar_vista('terminos_condiciones');
+                    }else if(msg['resultado'] == "ERROR"){
+                        minsal_modal('Error','Error al intentar desactivar el Termino y Condición.');
+                        return false;
+                    }
+                }
+            });
+        };
+        minsal_confirm("Confirme","Desea Desactivar esta institución?<br>","Cancelar","Aceptar", callback);
+    }
+
+
+    function eliminar(idTermCondition, nameVaccine){
+        var callback = function() {
+            datos = {
+                "id":idTermCondition,
+                "vacuna":nameVaccine,
+                "estado":2,                    
+            };
+
+            url = api_url + 'admin/terminos_condiciones/delete';
+            $.ajax({
+                url: url,
+                data: JSON.stringify(datos),
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'Authorization': getCookie('token')
+                },
+                success: function (msg) {
+                    if(msg['resultado'] == "OK"){
+                        minsal_modal('Información','Terminos y condiciones eliminada correctamente.');
+                        minsal_ui_cargar_vista('terminos_condiciones');
+                    }else if(msg['resultado'] == "ERROR"){
+                        minsal_modal('Error','Error al intentar eliminar los terminos y condiciones.');
+                        return false;
+                    }
+                }
+            });
+        };
+        minsal_confirm("Confirme","Desea ELIMINAR este termino y condicion?<br><b>.</b","Cancelar","Aceptar", callback);
+    }
+
+
+    $(document).ready(function () {
+        cargarSelectVacuna();
+        cargar();
+        $('#descripcion').summernote();
+        //$('.js-example-basic-single').select2();
+        $.fn.select2.defaults.set("theme", "bootstrap4"); //No colocar esto arruina el select2
+        $('#id_vacuna').select2();
+        //$('[data-toggle="tooltip"]').tooltip(); //role="tooltip" data-toggle="tooltip" title="<br>asdf\n Hooray!"
+        
+        
+        $('#ayuda').tooltip({title: "<b><code>INFORMACION</code></b><BR> Si es necesario definir algún término y/o condiciones para una vacuna hacerlo desde esta pantalla, cabe aclarar que una vacuna puede tener varios términos y condiciones pero sólo puede tener ún sólo activo, ya que si hay uno activo es el que se presenta a la hora de vacunar para que lo acepte el usuario. Si necesita quitar los términos y condiciones de una vacuna es necesario los desactive todos los pertenecientes a ella.", html: true, placement: "bottom"});
+            //la etiqueta <em></em> deja el texto cursiva dentro del tooltip
+            //la etiqueta <code></code> deja el texto morado y formateado para codigo fuente dentro del tooltip
+        
+    });
+
+</script>
+<div class="contenido">
+
+	<div id="other" class="container-fluid">
+		<h1 class="text-center mb-2 md:mb-4 leading-tight titulo" id="nombre_completo"></h1>
+		<div class="text_i">
+		</div>
+
+		<form id="formGeneral1" method="get" action="" novalidate="novalidate">
+			<div id="bl1">
+                <h1 class="h3 mb-2 text-gray-800"><i class="fas fa-handshake mr-1"></i>Términos y condiciones</h1><br>
+				<div class="card shadow bg-white round-div">
+                    <div class="card-header py-3"> Términos y condiciones <i id='ayuda' class="fas fa-question-circle fa-fw" style="float:right;cursor: pointer"></i></div>
+					<div class="container-fluid">
+						<div class="row">
+							<div class="col-sm-12 ">
+								<br>
+								<button type="button" class="btn btn-sm btn-success"  onclick="$('#ventana1').modal();$('#titulo_modal').html('Nuevo Terminos y Condiciones');$('#btn_add').val('Guardar');limpiarInput();"> <i class="fas fa-plus-circle"></i> Nuevo </button>
+								<br><br>
+								
+								<div id="content_primary">
+
+								</div>								
+								<br>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<input id="tdoc" name="tdoc" type="hidden" value="1">
+
+		</form>
+	</div>
+
+
+	<div class="space"><br></div>
+
+	<div class="text-center"></div>
+
+	<div><br></div>
+
+	<div id="msg" class="text-center border-blue-500 border bg-blue-100 p-4 font-bold mb-4 md:mb-8"
+		style="display: none;">MSG</div>
+	<div id="fotos" style=""></div>
+</div>
+
+
+<!--------------------INICIO VENTANA 1-------------------->
+<div class="modal fade" id="ventana1">   
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <!---------Encabezado--------> 
+                <div class="modal-header">
+                    <h3 id='titulo_modal' class="modal-title">Nuevo</h3> 
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                </div>
+                <!---------Cuerpo-------->
+    
+                <div class="modal-body">               	
+                    <div id="detalle_aviso"> <!-- inicio div detalle aviso -->
+
+                        <div class="row"> 
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <select id="id_vacuna" style="height:50px">
+                                        <option value="0" selected>--Seleccionar vacuna--</option>
+                                        
+                                    </select>
+                                </div>
+                            </div>
+                        </div> <!-- row  --> 	    
+
+
+                        <div class="row"> 
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label for="version">Version</label>
+                                    <input type="text" class="form-control input-lg" id="version" placeholder="Version" name="version" autocomplete="off"  required >
+                                    <input type="hidden" name='id_term_condition' id='id_term_condition'>
+                                    <input type="hidden" name='estado' id='estado'>
+                                    <div id='error_version'></div>
+                                </div>
+                            </div>
+                        </div> <!-- row  --> 	                            
+    
+                        <div class="row"> <!-- row  --> 
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label for="descripcion">Descripcion*</label>
+                                    <textarea type="text" class="form-control input-lg" rows="30" cols="50" id="descripcion" name="descripcion" autocomplete="off" required ></textarea>
+                                    <div id='error_descripcion'></div>
+                                </div>
+                            </div>				       
+                        </div> <!-- row  -->
+
+                        
+    
+                        
+    
+                    </div><!-- fin div detalle aviso -->
+                </div>
+                <!---------footer-------->
+                <div class="modal-footer">                
+                    <button class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+
+                    <input id='btn_add' type="button" class="btn btn-primary" Value='Guardar'>                    
+                </div>
+            </div>
+        </div>
+    
+    </div>
+    <!--------------------FIN VENTANA 1-------------------->
+
+    <!--------------------INICIO VENTANA VER MAS-------------------->
+
+    
+    <div class="modal fade" id="ventanaVerMas">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <!--Encabezado-->
+                <div class="modal-header">
+                    <h3 id="titulo_modal">Descripcion</h3>
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                </div>
+
+                <!--Cuerpo modal-->
+                <div class="modal-body scroll-container">
+                    <div id="term_condition ">
+                        <p id="desc_term_condition" class="text-justify"></p>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    
+                  </div>
+            </div>
+        </div>
+    </div>
+    
+
+    <!--------------------FIN VENTANA VER MAS-------------------->
+
+<div class="space2"><br></div>
+<div class="space2"><br></div>
+<div class="space2"><br></div>
+<div class="space2"><br></div>
+
+
+<style>
+    .scroll-container{   
+        max-height: 50vh;
+            
+        overflow: scroll;
+        overflow-x: hidden;
+    }
+</style>

@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+	<meta charset="utf-8" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+	<!--meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"-->
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<meta name="description" content="" />
+	<meta name="author" content="" />
+
+	<title>Tramites - MINSAL</title>
+
+	<!-- Custom fonts for this template-->
+	<link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css" />
+	<link
+		href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
+		rel="stylesheet" />
+
+	<!-- Custom styles for this page -->
+	<link href="vendor/datatables/dataTables.bootstrap4.min.css" rel="stylesheet" />
+
+	<!-- Custom styles for this template-->
+	<link href="css/sb-admin-2.css" rel="stylesheet" />
+
+	<script src="js/config.js"></script>
+	<script src="js/comun.js"></script>
+
+
+	<!-- Librerias traidas de proyecto registro-vacunacion -->
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css"
+		integrity="sha512-aOG0c6nPNzGk+5zjwyJaoRUgCdOrfSDhmMID2u4+OIslr0GjpLKo7Xm0Ao3xmpM4T8AmIouRkqwj1nrdVsLKEQ=="
+		crossorigin="anonymous" />
+
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/timepicker/1.3.5/jquery.timepicker.min.css"
+		integrity="sha512-vZpXDvc3snY9J1W8GrnxqDr/+vP1nSTfk8apH1r0wQvOab6fkPhaeqAMlydW68MECAjRR05tu4SOJcwjZgPg5A=="
+		crossorigin="anonymous" />
+
+	<link rel="shortcut icon" href="img/favicon.png" />
+
+	<link rel="stylesheet"
+		href="https://cdnjs.cloudflare.com/ajax/libs/select2-bootstrap-theme/0.1.0-beta.10/select2-bootstrap.min.css"
+		integrity="sha512-kq3FES+RuuGoBW3a9R2ELYKRywUEQv0wvPTItv3DSGqjpbNtGWVdvT8qwdKkqvPzT93jp8tSF4+oN4IeTEIlQA=="
+		crossorigin="anonymous" />
+
+	<link href="css/select2-bootstrap4.min.css" rel="stylesheet" />
+
+
+	<link rel="stylesheet" href="css/buttons.bootstrap4.css">
+	<link rel="stylesheet" href="css/responsive.bootstrap4.css">
+
+
+</head>
+
+<body id="pages-top" class="sidebar-toggled">
+
+
+	<!-- Page Wrapper -->
+	<div id="menu-container"></div>
+	<!-- End of Page Wrapper -->
+
+	<!-- Scroll to Top Button-->
+	<a class="scroll-to-top rounded" href="#pages-top">
+		<i class="fas fa-angle-up"></i>
+	</a>
+
+	<!-- Logout Modal-->
+	<!--<div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+			<div class="modal-dialog" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h5 class="modal-title" id="exampleModalLabel">Ready to Leave?</h5>
+						<button class="close" type="button" data-dismiss="modal" aria-label="Close">
+							<span aria-hidden="true">×</span>
+						</button>
+					</div>
+					<div class="modal-body">
+						Select "Logout" below if you are ready to end your current session.
+					</div>
+					<div class="modal-footer">
+						<button class="btn btn-secondary" type="button" data-dismiss="modal">
+							Cancel
+						</button>
+						<a class="btn btn-primary" href="login.html">Logout</a>
+					</div>
+				</div>
+			</div>
+		</div>-->
+
+</body>
+
+<!--script src="https://unpkg.com/@popperjs/core@2"></script-->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+
+<!-- Bootstrap core JavaScript-->
+<script src="https://code.jquery.com/jquery-3.5.1.min.js" crossorigin="anonymous"></script>
+
+<script src="vendor/bootstrap/js/bootstrap.min.js"></script>
+
+<!-- Libreria para usar texto enriquecido -->
+
+<!-- include summernote css/js -->
+<link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote.min.js"></script>
+<!-- Custom scripts for all pages-->
+<script src="js/sb-admin-2.js"></script>
+
+<!-- traido de proyecto registro-vacunacion -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.0.0/crypto-js.min.js"
+	integrity="sha512-nOQuvD9nKirvxDdvQ9OMqe2dgapbPB7vYAMrzJihw5m+aNcf0dX53m6YxM4LgA9u8e9eg9QX+/+mPu8kCNpV2A=="
+	crossorigin="anonymous"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.2/jquery.validate.min.js"
+	integrity="sha512-UdIMMlVx0HEynClOIFSyOrPggomfhBKJE28LKl8yR3ghkgugPnG6iLfRfHwushZl1MOPSY6TsuBDGPK2X4zYKg=="
+	crossorigin="anonymous"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/imask/6.0.5/imask.min.js"
+	integrity="sha512-0ctiD2feH7vdHZ5jjAKNYts4h+IBRq7Nm5wACMJG1Pj5AQyprSHzX/ijMm77AcLLW5cemQptH+9EcviiKCC0cQ=="
+	crossorigin="anonymous"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/timepicker/1.3.5/jquery.timepicker.min.js"
+	integrity="sha512-ux1VHIyaPxawuad8d1wr1i9l4mTwukRq5B3s8G3nEmdENnKF5wKfOV6MEUH0k/rNT4mFr/yL+ozoDiwhUQekTg=="
+	crossorigin="anonymous"></script>
+
+<link href="css/select2.min.css" rel="stylesheet" />
+<script src="js/select2.full.min.js"></script>
+
+
+<script src="https://cdn.datatables.net/1.10.23/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.23/js/dataTables.bootstrap4.min.js"></script>
+
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap-4-autocomplete/dist/bootstrap-4-autocomplete.min.js"
+	crossorigin="anonymous"></script>
+<!-- Core plugin JavaScript-->
+<script src="vendor/jquery-easing/jquery.easing.min.js"></script>
+
+
+
+<script src="js/dataTables.buttons.js"></script>
+<script src="js/buttons.bootstrap4.js"></script>
+<script src="js/buttons.html5.js"></script>
+<script src="js/buttons.print.js"></script>
+<script src="js/buttons.colVis.js"></script>
+<script src="js/dataTables.responsive.js"></script>
+<script src="js/responsive.bootstrap4.js"></script>
+
+<!-- SweetAlert2 -->
+<link rel="stylesheet" href="css/sweetalert2-theme-bootstrap-4/bootstrap-4.css">
+<script src="js/sweetalert2.js"></script>
+
+
+
+<script>
+
+	function ui_token() {
+
+		if (getCookie("token")) {
+			try {
+				var obj = JSON.parse(getCookie("edata"));
+			} catch (e) {
+				destCookie();
+				ui_token();
+			}
+
+
+			/*Cargando menú*/
+			$('#menu-container').load('./menu/menu_base.html', () => {
+
+				/*Mostrando opciones según rol*/
+				var usuario = JSON.parse(getCookie("edata"));
+
+				$('.menu_role').hide();
+
+				$(usuario.roles.activos).each((idx, el) => {
+					$('.menu_role_' + el.rol).show();					
+				});
+
+				/*Seteando el nombre de usuario logueado*/
+				$("#menu_nombre_usuario").html(obj['usuario']);
+
+				/*Seteando el nombre del establecimiento*/
+				g_establecimiento_nombre = obj['establecimiento_nombre'];
+				$('#nombre_establecimiento').html(g_establecimiento_nombre);
+
+				/*Agregando el cierre de sesión*/
+				$("#btn_logout").click((e) => {
+					sesion();
+					destCookie();
+					ui_token();
+					e.preventDefault();
+				});
+
+				/*Agregando el cambio establecimiento*/
+				$("#btn_change_center").click((e) => {
+					minsal_ui_cargar_vista('admin_cambiar_establecimiento')
+				});
+
+				/*Mantiene la página actual al recargar*/
+				var hash = window.location.hash.substring(1);
+				if (window.location.hash && hash)
+					minsal_ui_cargar_vista(hash);
+
+			});
+
+		} else {
+			destCookie();
+			document.location.href = "login.html";
+		}
+	}
+
+	function sesion() {
+		var usuario = JSON.parse(getCookie("edata"));
+		let datos = {
+			id_usuario: usuario['id_usuario'],
+			sesion: false
+		};
+		url = api_url + 'sesion';
+		$.ajax({
+			async: false,
+			url: url,
+			data: JSON.stringify(datos),
+			method: 'PUT',
+			headers: {
+				'Content-Type': 'application/json',
+				'Accept': 'application/json',
+			},
+			success: function (data) {
+				minsal_set_cookie_key('edata', 'sesion', 0);
+				console.log(data);
+			},
+			error: function (jqXHR, status, err) {
+				console.log(err);
+			},
+		});
+	}
+
+	function setCookie(cname, cvalue, exdays) {
+		if (typeof Storage !== "undefined") {
+			if (exdays === -1) {
+				sessionStorage.removeItem(cname);
+			} else {
+				sessionStorage.setItem(cname, cvalue);
+			}
+		} else {
+			Cookies.set(cname, cvalue, { expires: exdays });
+		}
+	}
+
+	function getCookie(cname) {
+		if (typeof Storage !== "undefined") {
+			return sessionStorage.getItem(cname);
+		} else {
+			return Cookies.get(cname);
+		}
+	}
+
+	function checkCookie() {
+		var user = getCookie("token");
+	}
+
+	function destCookie() {
+		setCookie("token", "", -1);
+	}
+
+	function destCookie2(param) {
+		setCookie(param, "", -1);
+	}
+
+	function toggle_prop(id) {
+		var g = document.getElementById(id);
+		if (g.disabled == false) {
+			g.disabled = true;
+		} else {
+			g.disabled = false;
+		}
+	}
+
+	function toggle_show(id) {
+		var e = document.getElementById(id);
+
+		if (e.style.display == "none") {
+			e.style.display = "block";
+		} else {
+			e.style.display = "none";
+		}
+	}
+
+	function ShowProgressAnimation() {
+		$("#loading-div-background").show();
+	}
+
+	function HideProgressAnimation() {
+		$("#loading-div-background").hide();
+	}
+
+	jQuery.ajaxSetup({
+		timeout: 60000,
+		cache: false,
+		beforeSend: function () {
+			ShowProgressAnimation();
+		},
+		complete: function () {
+			HideProgressAnimation();
+		},
+		success: function () { }
+	});
+
+	mask = [];
+
+	function setMaskNumber(idElement, element, minNum, maxNum, formatNumber = '') {
+		let maskInput = IMask(element, {
+			mask: Number,
+			scale: 2,
+			min: minNum,
+			max: maxNum,
+			radix: ',',
+			thousandsSeparator: formatNumber,
+			mapToRadix: ['.'],
+		});
+		let addingMask = {
+			idInput: idElement,
+			maskInput: maskInput
+		}
+		mask[idElement] = maskInput;
+
+	}
+
+	function setMaskText(idElement, element, patternMask) {
+		let maskInput = IMask(element, {
+			mask: patternMask
+		});
+		let addingMask = {
+			idInput: idElement,
+			maskInput: maskInput
+		}
+		mask[idElement] = maskInput;
+
+	}
+
+	$(function () {
+		ui_token();
+
+		$(window).on("beforeunload", function () {
+			return alert('Cerré la ventana');
+		})
+	});
+
+</script>
+
+</html>

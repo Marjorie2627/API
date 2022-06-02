@@ -1,0 +1,532 @@
+<script>
+  $("#btn_add").click(function () {
+    event.preventDefault();
+    if ($("#btn_add").val() == "Guardar") nuevo();
+
+    if ($("#btn_add").val() == "Modificar") modificar();
+  });
+
+  function nuevo() {
+
+    let cmb_institucion = $("#cmb_institucion").val();
+    let nombre = $("#nombre").val();
+  
+
+    if (cmb_institucion == 0) {
+        
+        $("#error_institucion").html(
+          "<span class='text-danger'>Por favor seleccione Institución donde pertenece la nueva ubicación</span>"
+        );
+        $("#error_institucion").focus();
+        return false;
+    } else {
+        $("#error_institucion").empty();
+    }
+
+    if (nombre == "") {
+      $("#error_nombre").html(
+        "<span class='text-danger'>Por favor ingrese el nombre de la Ubicación</span>"
+      );
+      $("#error_nombre").focus();
+      return false;
+    } else {
+        $("#error_nombre").empty();
+    }
+
+    datos = {
+      nombre: nombre,
+      id_institucion: cmb_institucion,
+    };
+
+    url = api_url + "admin/ubicaciones";
+    $.ajax({
+      url: url,
+      data: JSON.stringify(datos),
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+        "Authorization": getCookie("token"),
+      },
+      success: function (msg) {
+        if (msg["resultado"] == "OK") {
+          minsal_modal("Información", "Ubicación guardada correctamente.");
+          minsal_ui_cargar_vista("ubicaciones");
+        } 
+      },
+      error: function (msg) {
+        let result = JSON.parse(msg.responseText);
+
+        if (result["resultado"] == "ERROR") {
+          minsal_modal("Error", "UBICACION ya existe, intente asignar otro nombre.");
+          return false;
+        }
+      },
+    });
+
+    $("#ventana1").modal("hide");
+  }
+
+  function cargarModificar(id_ubicacion) {
+    url = api_url + "admin/ubicaciones/" + id_ubicacion;
+    $.ajax({
+      url: url,
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+        Authorization: getCookie("token"),
+      },
+      success: function (msg) {
+        if (msg["resultado"] == "OK") {
+          $("#titulo_modal").html("Modificar Ubicación");
+          $("#btn_add").val("Modificar");
+
+          $("#id_ubicacion").val(msg['datos']['id']);
+          $("#cmb_institucion").val(msg["datos"]["id_institucion"]);
+          $("#nombre").val(msg["datos"]["nombre"]);
+          
+          $("#ventana1").modal("show");
+        } else if (msg["resultado"] == "ERROR") {
+          minsal_modal("Error", "Error al intentar modificar la Ubicación.");
+          return false;
+        }
+      },
+    });
+  }
+
+function modificar() {
+
+    let id_ubicacion = $("#id_ubicacion").val();
+    let id_institucion = $("#cmb_institucion").val();
+    let nombre = $("#nombre").val();
+
+    if (id_institucion == 0) {
+        
+        $("#error_institucion").html(
+          "<span class='text-danger'>Por favor seleccione Institución donde pertenece la ubicación ubicación</span>"
+        );
+        $("#error_institucion").focus();
+        return false;
+    } else {
+        $("#error_institucion").empty();
+    }
+
+
+
+    $("#error_nombre").empty();
+
+    if (nombre == "") {
+      $("#error_nombre").html(
+        "<span class='text-danger'>Por favor ingrese el nombre de la Ubicacion</span>"
+      );
+      $("#error_nombre").focus();
+      return false;
+    }
+
+    datos = {
+      "nombre": nombre, 
+      "id_institucion": id_institucion,
+    };
+
+    url = api_url + "admin/ubicaciones/edit/" + id_ubicacion;
+    $.ajax({
+      url: url,
+      data: JSON.stringify(datos),
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+        "Authorization": getCookie("token"),
+      },
+      success: function (msg) {
+        if (msg["resultado"] == "OK") {
+          minsal_modal("Información", "Ubicación " + nombre + " modificada correctamente.");
+          minsal_ui_cargar_vista("ubicaciones");
+        }
+      },
+      error: function (msg) {
+        let result = JSON.parse(msg.responseText);
+        
+        if (result["resultado"] == "ERROR") {
+        
+          minsal_modal("Error","Ubicación " + nombre + " ya existe, intente asignar otro nombre."
+          );
+          return false;
+        }
+      },
+    });
+
+    $("#ventana1").modal("hide");
+  }
+
+  function cargar() {
+    url = api_url + "admin/usuarios";
+    $.ajax({
+      async: true,
+      method: "GET",
+      crossDomain: true,
+      mode: "cors",
+      headers: {
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+        "Authorization": getCookie("token"),
+      },
+      url: url,
+      success: function (data) {
+        console.log(data);
+        var html = "";
+        var contador = 1;
+        if (data["resultado"] == "ERROR") {
+          $("#content_primary").html(
+            '<center><span class="badge badge-danger"><p>No existe ninguna ubicación registrada hasta este momento.</p></span></center>'
+          );
+          return false;
+        }
+
+        html +=
+          "<div class='table-responsive'><table id='table1' class='table table-striped table-hover' style='font-size: 14px;'> \
+                                    <thead> \
+                                        <tr> \
+                                            <th><center>Usuario</center></th> \
+                                            <th><center>Institución</center></th> \
+                                            <th><center>Ubicacion</center></th> \
+                                            <th><center>Rol</center></th> \
+                                            <th><center>Estado</center></th> \
+                                            <th><center>Acciones</center></th> \
+                                        </tr> \
+                                    </thead> \
+                                    <tbody>";
+
+        $.each(data["datos"], function (key, value) {
+          var boton = "";
+
+          if (value.activo != 2) {
+            // Los borrados fisicamente no los muestra
+            if (value.activo == 0)
+              boton ="<button type='button' title='Activar' class='btn btn-success btn-circle' onclick='activar(" +value.id +',"' + value.nombre + "\");'><i class='fa fa-arrow-up'></i></button> &nbsp;&nbsp;";
+            else
+              boton ="<button type='button' title='Desactivar' class='btn btn-warning btn-circle' onclick='desactivar(" + value.id + ',"' +value.nombre +"\");'><i class='fa fa-arrow-down'></i></button> &nbsp;&nbsp;";
+            
+              html +="<tr><td><center>" + value.usuario + "</center></td><td>" + value.institucion +"</td>\
+                                         <td><center>" + value.ubicacion + "</center></td> \
+                                         <td><center>" + value.roles + "</center></td> \
+                                         <td><center><h5>" + (value.activo == 1 ? "<span class='badge badge-success'>Activo</span>" : "<span class='badge badge-danger'>Inactivo</span>") +"</h5></center></td>\
+                                         <td><center><button type='button' title='Editar' class='btn btn-warning btn-circle' onclick='cargarModificar(" + value.id + ")'><i class='fa fa-pencil-alt'></i></button> &nbsp;&nbsp;" + boton +"\
+                                                     <button type='button' title='Eliminar' class='btn btn-danger btn-circle' onclick='eliminar(" + value.id + ',"' + value.nombre +"\");'><i class='fa fa-trash-alt'></i></button></center>\
+                                         </td>\
+                      </tr>";
+            contador++;
+          }
+        });
+
+        html += "</tbody></table></div>";
+
+        $("#content_primary").html(html);
+        $("#table1").DataTable({
+          language: {
+            url: "https://cdn.datatables.net/plug-ins/1.10.22/i18n/Spanish.json",
+          },
+        });
+      },
+    });
+  }
+
+  function activar(id, nombre) {
+    var callback = function () {
+      datos = {
+        activo: 1,
+        id: id,
+      };
+
+      url = api_url + "admin/ubicaciones/estado";
+      $.ajax({
+        url: url,
+        data: JSON.stringify(datos),
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+          "Authorization": getCookie("token"),
+        },
+        success: function (msg) {
+          if (msg["resultado"] == "OK") {
+            minsal_modal(
+              "Información",
+              "Ubicación " + nombre + " activada correctamente."
+            );
+            minsal_ui_cargar_vista("ubicaciones");
+          } else if (msg["resultado"] == "ERROR") {
+            minsal_modal("Error", "Error al intentar activar la UBICACIÓN.");
+            return false;
+          }
+        },
+      });
+    };
+    minsal_confirm(
+      "Confirme",
+      "Desea activar esta UBICACIÓN?<br><b>" + nombre + ".</b",
+      "Cancelar",
+      "Aceptar",
+      callback
+    );
+  }
+
+  function desactivar(id, nombre) {
+    var callback = function () {
+      datos = {
+        activo: 0,
+        id: id,
+      };
+
+      url = api_url + "admin/ubicaciones/estado";
+      $.ajax({
+        url: url,
+        data: JSON.stringify(datos),
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+          "Authorization": getCookie("token"),
+        },
+        success: function (msg) {
+          if (msg["resultado"] == "OK") {
+            minsal_modal(
+              "Información",
+              "Ubicación " + nombre + " desactivada correctamente."
+            );
+            minsal_ui_cargar_vista("ubicaciones");
+          } else if (msg["resultado"] == "ERROR") {
+            minsal_modal("Error", "Error al intentar desactivar la Ubicación.");
+            return false;
+          }
+        },
+      });
+    };
+    minsal_confirm(
+      "Confirme",
+      "Desea Desactivar esta Ubicación?<br><b>" + nombre + ".</b",
+      "Cancelar",
+      "Aceptar",
+      callback
+    );
+  }
+
+  function eliminar(id, nombre) {
+    var callback = function () {
+      datos = {
+        id: id,
+        activo: 2,
+      };
+
+      url = api_url + "admin/ubicaciones/delete/" + id;
+      $.ajax({
+        url: url,
+        data: JSON.stringify(datos),
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+          "Authorization": getCookie("token"),
+        },
+        success: function (msg) {
+          if (msg["resultado"] == "OK") {
+            minsal_modal("Información", "Ubicación eliminada correctamente.");
+            minsal_ui_cargar_vista("ubicaciones");
+          } else if (msg["resultado"] == "ERROR") {
+            minsal_modal("Error", "Error al intentar eliminar la Ubicación.");
+            return false;
+          }
+        },
+      });
+    };
+    minsal_confirm(
+      "Confirme",
+      "Desea ELIMINAR esta Ubicación?<br><b>" + nombre + ".</b",
+      "Cancelar",
+      "Aceptar",
+      callback
+    );
+  }
+
+  // load instituciones in cmb
+
+ function institucion() {
+    $.ajax({
+        async: true,
+        method: "GET",
+        crossDomain: true,
+        mode: 'cors',
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'Authorization': getCookie('token'),
+        },
+        url: api_url + 'admin/instituciones',
+        success: function (msg) {
+            if (msg['resultado'] == "OK") {
+                
+                let selectValues = msg['datos'];
+                
+                let id = 0; 
+                let nombre = '';
+                $.each(selectValues, function (key, value) {
+                    id = value.id;
+                    nombre = value.nombre;
+                    $('#cmb_institucion')
+                        .append($("<option></option>").attr("value", id).text(nombre));
+                    });
+            
+
+            }
+
+        }
+    });
+}
+
+  $(document).ready(function () {
+    institucion();  
+    cargar();
+    
+  });
+</script>
+<div class="contenido">
+  <div id="other" class="container-fluid">
+    <h1
+      class="text-center mb-2 md:mb-4 leading-tight titulo"
+      id="nombre_completo"
+    ></h1>
+    <div class="text_i"></div>
+
+    <form id="formGeneral1" method="get" action="" novalidate="novalidate">
+      <div id="bl1">
+        <h1 class="h3 mb-2 text-gray-800">
+          <i class="fas fa-user-alt"></i>
+          Administración de Usuarios
+        </h1>
+        <br />
+        <div class="card shadow bg-white round-div">
+          <div class="card-header py-3">Listado de Usuarios</div>
+          <div class="container-fluid">
+            <div class="row">
+              <div class="col-sm-12">
+                <br />
+                <button
+                  type="button"
+                  class="btn btn-sm btn-success"
+                  onclick="$('#ventana1').modal();$('#titulo_modal').html('Nueva Ubicación');$('#cmb_institucion').val();$('#btn_add').val('Guardar');$('#nombre').val('')"
+                >
+                  <i class="fas fa-plus-circle"></i>
+                  Nuevo
+                </button>
+                <br /><br />
+
+                <div id="content_primary"></div>
+                <br />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <input id="tdoc" name="tdoc" type="hidden" value="1" />
+      <input id="id_ubicacion" name="id_ubicacion" type="hidden" value="id_ubicacion"/>
+      <input type="hidden" name="id_institucion" id="id_institucion" value="cmb_institucion">
+     
+    </form>
+  </div>
+
+  <div class="space"><br /></div>
+
+  <div class="text-center"></div>
+
+  <div><br /></div>
+
+  <div
+    id="msg"
+    class="
+      text-center
+      border-blue-500 border
+      bg-blue-100
+      p-4
+      font-bold
+      mb-4
+      md:mb-8
+    "
+    style="display: none"
+  >
+    MSG
+  </div>
+  <div id="fotos" style=""></div>
+</div>
+
+<!--------------------INICIO VENTANA 1-------------------->
+<div class="modal fade" id="ventana1">
+  <div class="modal-dialog modal-xs">
+    <div class="modal-content">
+      <!---------Encabezado-------->
+      <div class="modal-header">
+        <h3 id="titulo_modal" class="modal-title">Nueva Ubicación</h3>
+        <button
+          type="button"
+          class="close"
+          data-dismiss="modal"
+          aria-hidden="true"
+        >
+          &times;
+        </button>
+      </div>
+      <!---------cuerpo-------->
+
+      <div class="modal-body">
+        <div id="detalle_aviso">
+          <!-- inicio div detalle aviso -->
+          <div class="row">
+            <div class="col-md-12">
+              <div class="form-group">
+                <label for="nombre">Institución*</label>
+                <select class="form-control" id="cmb_institucion">
+                  <option value="0" selected="selected" required>- Seleccione... -</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="nombre">Nombre*</label>
+                <input
+                  type="text"
+                  class="form-control input-lg"
+                  id="nombre"
+                  placeholder="Nombre"
+                  name="nombre"
+                  autocomplete="off"
+                  required
+                />
+                <input type="hidden" name="id_institucion" id="id_institucion" value="id_institucion">
+                <div id="error_institucion"></div>
+                <div id="error_nombre"></div>
+              </div>
+            </div>
+          </div>
+          <!-- row  -->
+        </div>
+        <!-- fin div detalle aviso -->
+      </div>
+      <!---------footer-------->
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+
+        <input
+          id="btn_add"
+          type="button"
+          class="btn btn-primary"
+          value="Guardar"
+        />
+      </div>
+    </div>
+  </div>
+</div>
+<!--------------------FIN VENTANA 1-------------------->
+
+<div class="space2"><br /></div>
+<div class="space2"><br /></div>
+<div class="space2"><br /></div>
+<div class="space2"><br /></div>

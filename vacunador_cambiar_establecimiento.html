@@ -1,0 +1,116 @@
+<style>
+    .round-div 	{	border-radius: 15px 15px 15px 15px;	}
+</style>
+
+<script>
+
+    var validator1 = $("#form-change").validate({
+            rules: {
+                destino: { required: true },
+            },
+            messages: {
+                destino: "Debe de seleccionar un establecimiento destino",
+            },
+            errorPlacement: function(error, element) {
+            if  (element.hasClass('form-control') && element.next('.select2-container').length) {
+                error.insertAfter(element.next('.select2-container'));
+            }
+        }
+	});
+
+
+    function defaultData(){
+        var establecimiento        = JSON.parse(getCookie("edata"));
+		var id_establecimiento     = establecimiento['id_establecimiento'];
+        var nombre_establecimiento = establecimiento['establecimiento_nombre'];
+        let establecimientos       = getEstablecimientos();
+       
+        $('#origen').append($("<option></option>").attr("value", id_establecimiento).text(nombre_establecimiento));
+        
+        $.each(establecimientos['datos']['establecimiento'], function (key, val) {
+            $('#destino').append('<option value="' + val.id + '">' + val.nombre + '</option>');
+        });
+    }
+
+    $("#bt_change").click(function () {
+
+        if ( $("#form-change").valid() == true ) {
+
+            var id_usuario         = JSON.parse(getCookie("id_empleado"));
+            var id_establecimiento = $('#destino').val();
+            
+            datos = {
+                "id_empleado" : parseInt(id_usuario),
+                "id_establecimiento" : parseInt(id_establecimiento)
+            };
+
+            minsal_put('admin/vacunadores/cambio_establecimiento', (data) => {
+                        if(data['resultado'] == "OK"){
+                            minsal_modal('Aviso', 'Cambio de establecimiento realizado de forma exitosa');
+                            minsal_ui_cargar_vista('vacunadores')
+                        }
+                    }, (jqXHR, status, err) => {
+                        minsal_modal('Error al cambiar establecimiento', 'Ocurrió un error desconocido al cambiar establecimiento');
+                    }
+                    ,datos
+            );
+        }
+	});
+
+    $('#btn_back').click(function(){
+        minsal_ui_cargar_vista('vacunadores')
+    });
+
+    $(document).ready(function(){
+        defaultData();
+    });
+
+    var idEstablecimientoDestino = $('#destino');
+    var idEstablecimientoOrigen  = $('#origen');
+    initializeSelect2(idEstablecimientoDestino, true, true);
+    initializeSelect2(idEstablecimientoOrigen, false, false);
+
+</script>
+
+<div class="contenido">
+    <div class="">
+        <h1 class="text-center mb-2 md:mb-4 leading-tight titulo">CAMBIO DE ESTABLECIMIENTO</h1>
+        <div class="d-flex justify-content-end mb-3">
+            <button class="btn btn-sm btn-warning" id="btn_back">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 16l-6-6 6-6"/><path d="M20 21v-7a4 4 0 0 0-4-4H5"/></svg>
+                Regresar
+            </button>
+        </div>
+    </div>
+    <div class="p-4 shadow bg-white round-div">
+        <form action="get" id="form-change">
+            <div class="row">
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        <label for="origen">Establecimiento origen</label>
+                        <select name="origen" id="origen" class="form-control" disabled>
+                               
+                        </select>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        <label for="destino">Establecimiento destino*</label>
+                        <select name="destino" id="destino" class="form-control" required>
+                               
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="form-group">
+                        <div style="text-align: center;">
+                            <button type="button" class="btn btn-primary text-center" id="bt_change">Cambiar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

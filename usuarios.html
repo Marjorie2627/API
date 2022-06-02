@@ -1,0 +1,155 @@
+<style>
+	
+</style>
+<script>
+
+	/*var usuario = JSON.parse(getCookie("edata"));
+	roles_id = [];
+	$(usuario.roles.activos).each( (idx, el) => {
+		roles_id.push(el.id);
+	});*/
+
+    function nuevo() {
+		minsal_ui_cargar_vista('add_usuario')
+	}
+
+	function cambiarEstablecimiento(idUsuario) {
+		setCookie("id_usuario", idUsuario, 1);
+		minsal_ui_cargar_vista('usuario_cambiar_establecimiento')
+	}
+
+	function deshabilitar(idUsuario,nombre){
+		
+		if(confirm("¿Desea deshabiliatar este usuario?: "+nombre+ 'de su establecimiento')){
+			
+			datos = {
+				"id_usuario" : parseInt(idUsuario),
+			};
+
+			url = api_url + 'admin/usuarios/deshabilitar';
+
+			$.ajax({
+				url: url,
+				data: JSON.stringify(datos),
+				method: 'PUT',
+				headers: {
+					'Content-Type': 'application/json',
+					'Accept': 'application/json',
+					'Authorization': getCookie('token') || ''
+				},
+				success: function (data) {
+					if(data['resultado'] == "OK"){
+						alert('Se deshabilitó el usuario.');
+						minsal_ui_cargar_vista('usuarios')
+					}
+				},
+			});
+		}
+	}
+
+	function cargarUsuarios(){
+
+		var miTabla = $('#main-table').DataTable({
+				language: {
+							url: 'https://cdn.datatables.net/plug-ins/1.10.22/i18n/Spanish.json'
+						},
+				ordering:false,
+				dom: 'frtip',
+		});
+
+		minsal_get('usuarios/list', (data) => {
+			
+			let roles = data.datos.roles
+			
+			
+			data.datos.forEach((elm, idx) => {
+				let roles = "";
+				
+				elm.roles.forEach((val, idx) => {
+					roles+= val.rol_nombre+'</br>';
+					
+				});
+	
+				let color    = elm.activo == 1 ? 'success' : 'danger';
+				let estado   = elm.activo == 1 ? 'Activo' : 'Inactivo';
+				let acciones = '<a type="button" title="Editar Usuario" onclick="cambiarEstablecimiento('+elm.id_usuario+')" class="btn bg-white btn-sm rounded">'+
+									'<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#17a2b8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.66V20a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h5.34"></path><polygon points="18 2 22 6 12 16 8 16 8 12 18 2"></polygon></svg>'+
+								'</a> '+
+								
+								'<a type="button" title="Deshabilitar Usuario" onclick="deshabilitar('+elm.id_usuario+',&#39;'+elm.nombre+'&#39;)" class="btn bg-white btn-sm rounded">'+
+									'<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#dc3545" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"> <circle cx="12" cy="12" r="10"/><path d="M16 12l-4 4-4-4M12 8v7"/></svg>'+
+								'</a> ';
+
+				if( elm.activo == 0 ){
+					acciones = '<a type="button" title="Editar Usuario" onclick="cambiarEstablecimiento('+elm.id_usuario+')" class="btn bg-white btn-sm rounded">'+
+									'<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#17a2b8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.66V20a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h5.34"></path><polygon points="18 2 22 6 12 16 8 16 8 12 18 2"></polygon></svg>'+
+								'</a> '+
+								
+								'<a type="button" title="Habilitar Usuario" onclick="deshabilitar('+elm.id_usuario+',&#39;'+elm.nombre+'&#39;)" class="btn bg-white btn-sm rounded">'+
+									'<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#007bff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M16 12l-4-4-4 4M12 16V9"/></svg>'+
+								'</a> ';
+				}
+
+				if( elm.roles == 'admin' && roles_id.includes(2) ){
+					acciones = "--";
+				}
+				
+				miTabla.row.add([
+						'<p>' + elm.nombre +'</p>',
+						'<p class="text-center">' + elm.usuario + '</p>',
+						'<p class="text-center">' + roles + '</p>',
+						'<p class="text-center">' + elm.institucion.nombre_institucion + '</p>',						
+						'<p class="text-center">' + "<span class='badge badge-" + color + "'>"+ estado + "</span>" +'</p>',
+						'<p>' +  acciones + '</p>',]).draw().node();
+			});
+		}, (jqXHR, status, err) => {}
+		);
+	}
+
+	$(document).ready(function(){
+		cargarUsuarios();
+	});
+</script>
+
+<div class="contenido">
+
+    <!--<h1 class="h3 mb-2 text-gray-800">Usuarios</h1><br>-->
+		<div class="card shadow bg-white round-div">
+            <div class="card-header py-3">Listado de usuarios <i id='ayuda' class="fas fa-question-circle fa-fw" style="float:right;cursor: pointer"></i></div>
+				<div class="container-fluid p-3">
+					<div class="row">
+						<div class="col-sm-12 ">
+							<br>
+							<button type="button" class="btn btn-sm btn-success"  onclick="nuevo()"> 
+								<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+									<circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line>
+								</svg>
+								Nuevo 
+							</button>
+							
+							<div class="table-responsive">
+								<table class="table" id="main-table" style="font-size: 14px; table-layout:fixed; word-wrap: break-all;">
+									<thead class="text-center">
+										<tr>
+											<th width='200px'>Nombre</th>
+											<th width='100px'>Usuario</th>
+											<th width='100px'>Roles</th>
+											<th width='100px'>Institucion</th>											
+											<th width='60px'>Estado</th>
+											<th width='150px'>Acciones</th>
+										</tr>
+										
+									</thead>
+									<tbody>
+	
+									</tbody>
+								</table>
+							</div>
+							
+						</div>
+					</div>
+				</div>
+			</div>
+
+	
+</div>

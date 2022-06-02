@@ -1,0 +1,299 @@
+<style>
+    .round-div 	{	border-radius: 15px 15px 15px 15px;	}
+</style>
+
+<script text="java/script">
+
+    /*Mostrando opciones según rol*/
+    var usuario = JSON.parse(getCookie("edata"));
+    var existe  = false;
+
+    $('.menu_role').hide();
+
+    $(usuario.roles.activos).each( (idx, el) => {
+        $('.menu_role_' + el.rol).show();
+    });
+
+    IMask(document.getElementById('dui'), {
+            mask: '00000000-0'
+    });
+
+    var validator1 = $("#form-vacunador").validate({
+            rules: {
+                dui: { required: true },
+            },
+            messages: {
+                dui: "Por favor ingrese el DUI de la persona"
+            }
+    });
+
+    var validator2 = $("#form-send").validate({
+            rules: {
+                profesiones: { required: true },
+            },
+            messages: {
+                profesiones: "Por favor seleccione una profesión"
+            },
+            errorPlacement: function(error, element) {
+                if  (element.hasClass('form-control') && element.next('.select2-container').length) {
+                    error.insertAfter(element.next('.select2-container'));
+                }
+            }
+    });
+
+    function guardar(){
+
+        if ($("#form-send").valid() == true) {
+            datos = {
+                "id_empleado"  : $('#id_empleado').val(), 
+                "nombre"       : $('#nombre_empleado').val(),
+                "documento"    : $('#documento_empleado').val(),
+                "telefono"     : $('#telefono_empleado').val(),
+                "existe"       : existe,
+                "id_profesion" : $('#profesiones').val(),
+            }
+
+            minsal_post('admin/vacunadores/guardar', (data) => {
+                    minsal_modal('Aviso', 'Guardado correctamente');
+                    regresar();
+                },(jqXHR, status, err) => {
+                    minsal_modal('Error al guardar el vacunador', 'Ocurrió un error desconocido');
+                },
+                datos
+            );
+        }
+    }
+
+    function obtenerProfesiones(id_profesion){
+        $('#profesiones').html("");
+        $('#profesiones').append($("<option></option>").attr("value", '').text('Seleccione...'));
+        minsal_get('admin/profesiones/index', (data) => {
+            $.each(data.datos['data'], function (key, val) {
+				    $('#profesiones').append('<option value="' + val.id + '">' + val.nombre + '</option>');
+			});
+            
+            if(id_profesion)
+                $("#profesiones option[value = '" + id_profesion + "']").attr('selected', 'selected');
+
+		    }, (jqXHR, status, err) => {}
+		);
+    }
+
+    function regresar(){
+        $('#alert_message').hide();
+        $('#info_message').hide();
+        $('#datos').hide();
+        $('#nombre_completo').html("");
+        $('#documento').html("");
+        $('#establecimiento').html("");
+        $('#nombre_modalidad').html("");
+        $('#telefono').html("");
+        $('#dui').val("");
+    }
+
+    $('#btn_back').click(() => {
+        minsal_ui_cargar_vista('vacunadores')
+    });
+
+   
+    $("#btn_buscar").click( () => {
+        if ($("#form-vacunador").valid() == true) {
+
+            $('#datos').hide();
+            $('#nombre_completo').html("");
+            $('#documento').html("");
+            $('#establecimiento').html("");
+            $('#nombre_modalidad').html("");
+            $('#telefono').html("");
+            $('#info_message').hide();
+            $('#alert_message').hide();
+
+            var dui = $('#dui').val();
+           
+            $.ajax({
+                async: true,
+                method: "GET",
+                crossDomain: true,
+                mode: 'cors',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'Authorization': getCookie('token')
+                },
+                data:{
+                    dui: dui,
+                },
+                url: api_url + 'admin/vacunadores/buscarPorDui',
+                success: function (datos) {
+                   console.log(datos);
+                    if( datos['resultado'] == 'OK' ){
+                        $('#showing_actions').show();
+                        $('#datos').show('slow');
+                        
+                        let values   = datos['datos']['resultado'];
+                        let telefono = (values.telefono ? values.telefono : '--');
+
+                        $('#nombre_completo').html(values.nombre);
+                        $('#documento').html(values.documento);
+                        $('#establecimiento').html(values.establecimiento_nombre);
+                        $('#nombre_modalidad').html(usuario.modalidad_nombre);
+                        $('#telefono').html(telefono);
+
+                        if( values.id_establecimiento ){
+                            if( values.id_establecimiento == usuario.id_establecimiento ){
+                                $('#showing_actions').hide();
+                                $('#alert_message').show();
+                            }
+                        }
+
+                        if( values.id_empleado ){
+                            obtenerProfesiones(values.id_profesion);
+                            existe = true;
+                        }else{
+                            obtenerProfesiones();
+                        }
+                            
+                        $('#id_empleado').val( values.id_empleado ? values.id_empleado : null );
+                        $('#nombre_empleado').val( values.nombre );
+                        $('#documento_empleado').val( values.documento );
+                        $('#telefono_empleado').val( values.telefono ? values.telefono : null );
+
+                    }else if ( datos['resultado'] == 'ERROR' ){
+                        alert(datos['datos']['resultado']);
+                        $('#info_message').show();
+                        $('#datos').hide();
+                        $('#alert_message').hide();
+                        $('#nombre_completo').html("");
+                        $('#documento').html("");
+                        $('#establecimiento').html("");
+                        $('#nombre_modalidad').html("");
+                        $('#telefono').html("");
+                    }
+                },
+                error:function(jqXHR, status, err){
+                }
+            });
+        }
+    });
+
+    $(document).ready(function(){
+        var profesiones  = $('#profesiones');
+        initializeSelect2(profesiones, true, true);
+    });
+</script>
+
+<div class="main-contenido">
+	
+    <h1 class="text-center mb-2 md:mb-4 leading-tight titulo">AGREGAR VACUNADOR </h1> 
+        
+    <div class="d-flex justify-content-end mb-3">
+        <button class="btn btn-sm btn-warning" id="btn_back">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 16l-6-6 6-6"/><path d="M20 21v-7a4 4 0 0 0-4-4H5"/></svg>
+            Regresar
+        </button>
+    </div>
+		
+    <div class="p-4 shadow bg-white round-div">                                       
+        
+        <div class="d-flex justify-content-center">
+        <div class="row">
+            <form id="form-vacunador" method="get" novalidate="novalidate" autocomplete="off">
+                <div class="col-sm-12">
+                    <div class="form-group">
+                        <label for="dui" class="form-label">Ingrese el número de DUI de la persona que será vacunador del estabablecimiento *</label>
+                        <input type="text" name="dui" id="dui" placeholder="00000000-0" required="required"	class="form-input" autocomplete="off">
+						<div class="mt-2" style="text-align: center;" id="b_dui">
+							<button type="button" class="btn btn-outline-info" id="btn_buscar">Buscar</button>
+						</div>
+                    </div>
+
+                    <div class="form-group">
+                        <input type="hidden" id="id_empleado">
+                        <input type="hidden" id="nombre_empleado">
+                        <input type="hidden" id="documento_empleado">
+                        <input type="hidden" id="telefono_empleado">
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+                
+        <div class="row">
+            <div class="col-sm-12">
+                <div id="datos" style="display: none;">
+                    <form id="form-send" method="post">
+                        <div class="card border-left-primary mb-3" style="max-width: 550px; margin: auto;">
+                        <h5 class="card-title text-center text-primary p-3">Información general del vacunador</h5>
+                                        
+                        <div class="row no-gutters">
+                            <div class="col-sm-12">
+                                <div class="card-body">
+                                    <div class="form-group">
+                                        <label for="profesiones">Profesión*</label><br>
+                                        <select name="profesiones" id="profesiones" class="form-control"></select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row no-gutters">
+                            <div class="col-sm-6">
+                                <div class="card-body">
+                                    <label for="nombre_completo">Nombre:</label>
+                                    <small><p id="nombre_completo"></p></small>
+                                    <label for="documento">Documento:</label>
+                                    <small><p id="documento"></p></small>
+                                    <label for="estabablecimiento">Establecimiento:</label>
+                                    <small><p id="establecimiento"></p></small>
+                                </div>
+                            </div>
+                                          
+                            <div class="col-sm-6 p-1">
+                                <div class="card-body">
+                                    <label for="tipo_empleado">Tipo empleado:</label>
+                                    <small><p>VACUNADOR</p></small>
+                                    <label for="nombre_modalidad">Modalidad:</label>
+                                    <small><p id="nombre_modalidad"></p></small>
+                                    <label for="telefono">Teléfono:</label>
+                                    <small><p id="telefono"></p></small>
+                                </div>
+                            </div>
+                        </div>
+                                       
+                        <div class="row no-gutters">
+                            <div class="col-sm-12 p-1" id="showing_actions">
+                                <div id="btn_acciones" style="text-align: center;margin-bottom: 5px;">
+                                    <button type="button" class="btn btn-warning btn-sm menu_role_admin menu_role_super_admin" style="display: none;" id="btn_cancelar" onclick="regresar()">
+                                        Cancelar
+                                    </button>
+                                    <button type="button" class="btn btn-primary btn-sm menu_role menu_role_admin menu_role_super_admin" style="display: none;" id="btn_guardar" onclick="guardar()">
+                                        Guardar
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="alert_message" class="p-2" style="display: none;">
+                            <div class="alert alert-warning" role="alert">
+                                <small class="text-center"><center>Usuario ya pertenece a este estabablecimiento</center></small>
+                            </div>
+                        </div>
+                        <div id="info_message" class="p-2" style="display: none;">
+                            <div class="alert alert-info" role="alert">
+                                <small class="text-center"><center>Usuario no encontrado</center></small>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+                </div>
+            </div>
+        </div>
+        <br>
+		<div class="text_r text-xs text-gray-700 ">* Campos requeridos</div>							
+	</div>
+</div>
+<div>
+    <br>
+    <br>
+    <br>
+</div>

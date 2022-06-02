@@ -1,0 +1,646 @@
+<style>
+    .round-div 	{	border-radius: 15px 15px 15px 15px;	}
+</style>
+
+<script>
+
+    /*Mostrando opciones según rol*/
+    var usuario = JSON.parse(getCookie("edata"));
+    var existe  = false;
+
+    $('.menu_role').hide();
+
+    $(usuario.roles.activos).each( (idx, el) => {
+        $('.menu_role_' + el.rol).show();
+    });
+
+
+    var validator1 = $("#form-usuario").validate({
+            rules: {
+                dui: { required: true },
+            },
+            messages: {
+                dui: "Por favor ingrese el DUI de la persona"
+            }
+    });
+
+    function guardar(){
+        if( $('#btn_roles').attr('data-ref') === 'false' ){
+            var roles = [];
+            $.each($("input[name='roles']:checked"), function() {
+                roles.push($(this).val());
+            });
+
+            if ( roles.length == 0 ) {
+                alert('Debe de seleccionar al menos un rol');
+                return false;
+            }
+        }
+        
+
+        datos = {
+            "id_usuario": $('#id_usuario').val(), 
+            "nombre"    : $('#nombre_usuario').val(),
+            "documento" : $('#documento_usuario').val(),
+            "url_img"   : $('#url_img_usuario').val(),
+            "roles"     : roles ? roles : null,
+            "existe"    : existe
+        }
+
+        minsal_post('admin/vacuna_lote/store', (data) => {
+                minsal_modal('Aviso', 'Guardado correctamente');
+                regresar();
+		    },(jqXHR, status, err) => {
+                minsal_modal('Error al guardar el lote', 'Ocurrió un error desconocido');
+		    },
+            datos
+		);
+    }
+    
+
+    function regresar(){
+        clearInput();
+        clearErrorMessages();
+        setCurrentDateInput();
+    }
+
+    $('#btn_back').click(function(){
+        minsal_ui_cargar_vista('registrar_lote')
+    });
+
+
+    function cargarSelectVacuna(){
+            
+            minsal_get('admin/vacuna/index'
+                , (data) => {
+                    if(data['resultado'] == "OK"){
+                        $('#id_vacuna').append('<option selected value="'+0+'">-- Seleccionar --</option>');
+                        for (const vaccine of data['datos'].list_vacuna) {                        
+                            $('#id_vacuna').append('<option value="'+vaccine.id+'">'+vaccine.nombre_comercial+'</option>');
+                        }                        
+                    }else if(msg['resultado'] == "ERROR"){
+                        minsal_modal('Error','No existen vacunas registradas.');
+                        return false;
+                    }
+                }
+                , (jqXHR, status, err) => {}
+            );
+                
+    }
+    
+
+
+    function cargarSelectEstablecimiento(){
+        
+        minsal_get('admin/establecimiento/index'
+            , (data) => {
+                if(data['resultado'] == "OK"){
+                    let selectEstab = document.querySelector('#id_establecimiento');
+                    let option = document.createElement('option');                    
+                        option.innerHTML = '-- Seleccionar --';
+                        option.value = '0';
+                        selectEstab.append(option);
+                    
+                    for (const estab of data['datos'].establecimiento) {
+                        
+                        option = document.createElement('option');                    
+                        option.innerHTML = estab.nombre;
+                        option.value = estab.id;
+                        selectEstab.append(option);
+                        
+                    }
+                    let cookieData = JSON.parse(getCookie('edata'));
+                    selectEstab.value = cookieData.id_establecimiento;
+                    let roles = cookieData.roles.activos;                        
+                    
+                    let isRolSuperAdmin = roles.find(rol => rol.rol_nombre === 'super_admin');
+                    
+
+                    if(!isRolSuperAdmin){
+                        selectEstab.disabled = true;
+                    }
+
+                }else if(msg['resultado'] == "ERROR"){
+                    minsal_modal('Error','No existen establecimientos registrados.');
+                    return false;
+                }
+            }
+            , (jqXHR, status, err) => {}
+        );
+
+    }
+
+
+    function cargarSelectPresentacion(){
+        
+        minsal_get('admin/vacuna_lote/presentacion'
+            , (data) => {
+                
+                if(data['resultado'] == "OK"){
+                    let selectPresentacion = document.querySelector('#id_presentacion');
+                    let option = document.createElement('option');                    
+                        option.innerHTML = '-- Seleccionar --';
+                        option.value = '0';
+                        selectPresentacion.append(option);
+                    
+                    for (const pres of data['datos'].presentacion) {
+                        
+                        option = document.createElement('option');                    
+                        option.innerHTML = pres.nombre;
+                        option.value = pres.id;
+                        selectPresentacion.append(option);
+                        
+                    }
+
+
+                }else if(msg['resultado'] == "ERROR"){
+                    minsal_modal('Error','No existen presentaciones registrados.');
+                    return false;
+                }
+
+            }
+            , (jqXHR, status, err) => {}
+        );                                              
+        
+    }
+
+    $('#id_vacuna').on('change', function(){
+        cargarSelectLote(this.value);
+        
+    });
+
+    function cargarSelectLote(idVaccine){
+        
+        minsal_get('admin/vacuna_lote/findby_vaccine/'+idVaccine
+            , (data) => {
+                
+                if(data['resultado'] == "OK"){
+                    let selectLote = document.querySelector('#lote');
+                    let option = document.createElement('option');                    
+                        option.innerHTML = '-- Seleccionar --';
+                        option.value = '0';
+                        selectLote.append(option);
+                    
+                    for (const pres of data['datos'].vaccine_batch) {
+                        
+                        option = document.createElement('option');                    
+                        option.innerHTML = pres.lote;
+                        option.value = pres.lote;
+                        selectLote.append(option);
+                        console.log(pres.lote);
+                        
+                    }
+
+
+                }else if(msg['resultado'] == "ERROR"){
+                    minsal_modal('Error','No existen lotes registrados.');
+                    return false;
+                }
+
+            }
+            , (jqXHR, status, err) => {}
+        );                                              
+        
+    }
+
+    function settingUpMask(){
+            let totalMax                = 0;
+            let totalMin                = 0;
+            let intPattern              = new RegExp(/^([0-9]+)$/);
+            let elProveedor             = document.querySelector("#proveedor");
+            let elHrsDuracionAbierto    = document.querySelector("#hrs_duracion_abierto");
+            let elHrsDuracionAlmacenado = document.querySelector("#hrs_duracion_almacenado");
+            let elCantidad              = document.querySelector('#cantidad');
+            let elDosisPresentacion     = document.querySelector('#dosis_presentacion');
+            
+            setMaskText('proveedor', elProveedor, new RegExp(/^([a-z0-9 _:;,\.]+)$/, 'i'));
+            setMaskText('hrs_duracion_abierto', elHrsDuracionAbierto, intPattern);
+            setMaskText('hrs_duracion_almacenado', elHrsDuracionAlmacenado, intPattern);
+            //setMaskText('dosis_presentacion', elDosisPresentacion, /^([0-9\.]+)$/ );
+            setMaskNumber('dosis_presentacion', elDosisPresentacion, 1, Infinity);
+            setMaskNumber('cantidad', elCantidad, 1, Infinity);
+            //console.log(typeof(/\d+\./));
+            
+            elDosisPresentacion.addEventListener('keyup', function(){
+                let pres = this.value; 
+                if(pres.match(/^(\d+(\.||,[\d]{1,2})?)$/) == null){
+                    $('#error_dosis_presentacion').html("<span class='text-danger'>Digite correctamente dosis/presentacion</span>");
+                }else{
+                    $('#error_dosis_presentacion').empty()
+                }
+            });
+            //How to use map
+            /*let inputArray=[];
+            let mappingInputMask = mask.map((maskInput, index) =>{
+                console.log(maskInput.el.input);
+            });*/     
+            
+            
+                       
+        }
+
+    settingUpMask();
+
+    function clearInput() {                       
+        $("#id_vacuna").val('0');
+        $("#lote").val('');
+        $('#cantidad').val('');
+        $("#fecha_vencimiento").val('');
+        $("#id_establecimiento").val('0');
+        $("#id_presentacion").val('0');
+        $("#fecha_ingreso").val('');
+        $("#dosis_presentacion").val('');
+        $("#hrs_duracion_abierto").val('');
+        $("#hrs_duracion_almacenado").val('');
+        $("#proveedor").val('');
+        $("#fabricante").val('');
+    }
+
+    
+    function clearErrorMessages(){
+        $('#error_vacuna').empty();
+        $('#error_lote').empty();
+        $('#error_cantidad').empty();
+        $('#error_fecha_vencimiento').empty();
+        $('#error_establecimiento').empty();
+        $('#error_presentacion').empty();
+        $('#error_fecha_ingreso').empty();
+        $('#error_dosis_presentacion').empty();
+        $('#error_hrs_duracion_abierto').empty();
+        $('#error_hrs_duracion_almacenado').empty();     
+        $('#error_proveedor').empty();     
+        $('#error_fabricante').empty();     
+    }
+
+
+    function validated(){        
+        let vacuna            = $("#id_vacuna").val();
+        let lote              = $("#lote").val();
+        let cantidad          = $("#cantidad").val();
+        let fechaVencimiento  = $("#fecha_vencimiento").val();
+        let establecimiento   = $("#id_establecimiento").val();
+        let presentacion      = $("#id_presentacion").val();
+        let fechaIngreso      = $("#fecha_ingreso").val();
+        let dosisPresentacion = $("#dosis_presentacion").val();
+        let duracionAbierto   = $("#hrs_duracion_abierto").val();
+        let duracionAlmacenado= $("#hrs_duracion_almacenado").val();
+        let proveedor         = $("#proveedor").val();
+        let fabricante        = $("#fabricante").val();
+        
+               
+        clearErrorMessages();            
+
+        if (vacuna == 0) {
+            $('#error_vacuna').html("<span class='text-danger'>Por favor seleccione la vacuna</span>");
+            $('#error_vacuna').focus();
+            return false;
+        }
+        
+        if (lote == '') {
+            $('#error_lote').html("<span class='text-danger'>Por favor ingrese el lote</span>");
+            $('#error_lote').focus();
+            return false;
+        }
+        
+        if (cantidad == '') {
+            $('#error_cantidad').html("<span class='text-danger'>Por favor ingrese la cantidad recibida</span>");
+            $('#error_cantidad').focus();
+            return false;
+        }
+        
+        if (fechaVencimiento == '') {
+            $('#error_fecha_vencimiento').html("<span class='text-danger'>Por favor ingrese la fecha de nacimiento</span>");
+            $('#error_fecha_vencimiento').focus();
+            return false;
+        }
+        
+        if (establecimiento == '0') {
+            $('#error_establecimiento').html("<span class='text-danger'>Por favor seleccione el establecimiento</span>");
+            $('#error_establecimiento').focus();
+            return false;
+        }
+        
+        if (presentacion == '0') {
+            $('#error_presentacion').html("<span class='text-danger'>Por favor ingrese la presentacion</span>");
+            $('#error_presentacion').focus();
+            return false;
+        }
+        
+        if (fechaIngreso == '') {
+            $('#error_fecha_ingreso').html("<span class='text-danger'>Por favor ingrese la fecha de ingreso</span>");
+            $('#error_fecha_ingreso').focus();
+            return false;
+        }
+        
+        if (dosisPresentacion == '' || dosisPresentacion.match(/^(\d+(\.||,[\d]{1,2})?)$/) == null) {
+            $('#error_dosis_presentacion').html("<span class='text-danger'>Por favor ingrese la dosis por presentacion</span>");
+            $('#error_dosis_presentacion').focus();
+            return false;
+        }
+        
+        if (duracionAbierto == '') {
+            $('#error_hrs_duracion_abierto').html("<span class='text-danger'>Por favor ingrese la duracion de horas abierto</span>");
+            $('#error_hrs_duracion_abierto').focus();
+            return false;
+        }
+        
+        if (duracionAlmacenado == '') {
+            $('#error_hrs_duracion_almacenado').html("<span class='text-danger'>Por favor ingrese la duracion de horas almacenado</span>");
+            $('#error_hrs_duracion_almacenado').focus();
+            return false;
+        }
+        
+        /*if (proveedor == '') {
+            $('#error_proveedor').html("<span class='text-danger'>Por favor ingrese el proveedor</span>");
+            $('#error_proveedor').focus();
+            return false;
+        }
+        
+        if (fabricante == '') {
+            $('#error_fabricante').html("<span class='text-danger'>Por favor ingrese el fabricante</span>");
+            $('#error_fabricante').focus();
+            return false;
+        }*/
+
+                
+        
+        return true;        
+
+    }
+    
+    function nuevo(){
+        let vacuna            = $("#id_vacuna").val();
+        let lote              = $("#lote").val();
+        let cantidad          = $("#cantidad").val();
+        let fechaVencimiento  = $("#fecha_vencimiento").val();
+        let establecimiento   = $("#id_establecimiento").val();
+        let presentacion      = $("#id_presentacion").val();
+        let fechaIngreso      = $("#fecha_ingreso").val();
+        let dosisPresentacion = $("#dosis_presentacion").val();
+        let duracionAbierto   = $("#hrs_duracion_abierto").val();
+        let duracionAlmacenado= $("#hrs_duracion_almacenado").val();
+        let proveedor         = $("#proveedor").val();
+        let fabricante        = $("#fabricante").val();
+
+        if(validated()){
+            datos = {                
+                    "nombre":description,            
+                    "edad_minima_anios":yearMin,            
+                    "edad_minima_meses":monthMin,            
+                    "edad_minima_dias":dayMin,            
+                    "edad_minima_horas":hourMin,            
+                    "edad_maxima_anios":yearMax,            
+                    "edad_maxima_meses":monthMax,            
+                    "edad_maxima_dias":dayMax,            
+                    "edad_maxima_horas":hourMax,            
+            };              
+            //url = api_url + 'admin/edades_vacunas/store';
+            $.ajax({
+                url: url,
+                data: JSON.stringify(datos),
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'Authorization': getCookie('token')
+                },
+                success: function (msg) {
+                    if(msg['resultado'] == "OK"){
+                        minsal_modal('Información','Registro guardado correctamente.');
+                        minsal_ui_cargar_vista('registrar_lote');
+                    }else if(msg['resultado'] == "ERROR"){
+                        minsal_modal('Error','Error al intentar guardar lote.');
+                        return false;
+                    }
+                }
+            });
+
+            $('#ventana1').modal('hide');
+        }
+
+
+    }
+    function setCurrentDateInput(){
+        let elFechaIngreso      = document.getElementById('fecha_ingreso');
+        let elFechaVencimiento  = document.getElementById('fecha_vencimiento');
+        let date = new Date();                
+
+        let day = date.getDate(),
+            month = date.getMonth() + 1,
+            year = date.getFullYear();
+
+        month = (month < 10 ? "0" : "") + month;
+        day = (day < 10 ? "0" : "") + day;        
+
+        let today = year + "-" + month + "-" + day;
+
+        elFechaIngreso.max = today;
+        elFechaVencimiento.min = today;
+
+        elFechaIngreso.value = today;
+        
+    }
+
+    function cargarSelect(){
+        $('#id_vacuna').empty();
+        $('#id_establecimiento').empty();     
+        $('#id_presentacion').empty();     
+
+        cargarSelectVacuna();
+        cargarSelectPresentacion();
+        cargarSelectEstablecimiento();
+
+    }
+
+        
+
+    $(document).ready(function () {          
+        //cargar();        
+        
+        cargarSelect();
+        
+        $.fn.select2.defaults.set("theme", "bootstrap4");
+
+        /* Agregar funcionalidad de input y select a la vez
+        * $.fn.select2.defaults.set("tags", true);
+        */        
+        
+
+        $('#id_vacuna').select2();
+        $('#id_establecimiento').select2();
+        $('#id_presentacion').select2();
+        $('#lote').select2({tags: true});
+                                
+
+        $('#ayuda').tooltip({title: "<b><code>INFORMACION</code></b><BR> Si desea registrar un nuevo lote de vacuna hacerlo desde esta pantalla. Si se recibe nueva cantidad del mismo lote, lo hara de esta pantalla", html: true, placement: "bottom"});
+            //la etiqueta <em></em> deja el texto cursiva dentro del tooltip
+            //la etiqueta <code></code> deja el texto morado y formateado para codigo fuente dentro del tooltip
+        
+    });
+
+</script>
+
+<div class="contenido">
+	<div id="div_ini" class="container-fluid">
+		<h1 class="text-center mb-2 md:mb-4 leading-tight titulo">AGREGAR LOTE </h1> 
+        <div class="d-flex justify-content-end mb-3">
+            <button class="btn btn-sm btn-warning" id="btn_back">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 16l-6-6 6-6"/><path d="M20 21v-7a4 4 0 0 0-4-4H5"/></svg>
+                Regresar
+            </button>
+        </div>
+		
+		<form id="form-usuario" method="get" novalidate="novalidate" autocomplete="off">
+				
+                <div class="p-4 shadow bg-white round-div">                                       
+                    
+                    <div class="container-fluid">
+                        
+                        <div class="row"> 
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <input type="hidden" name='id_lote' id='id_lote'>
+                                    <label for="id_vacuna" class="form-label">Vacuna*</label>
+                                    <select id="id_vacuna" class="form-control input-lg" style="height:50px">                                        
+                                        
+                                    </select>
+                                    <div id="error_vacuna"></div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="id_establecimiento" class="form-label">Establecimiento*</label>
+                                    <select id="id_establecimiento" class="form-control input-lg" style="height:50px">                                        
+                                        
+                                    </select>
+                                    <div id="error_establecimiento"></div>
+                                </div>
+                            </div>
+                        </div> <!-- row  -->              
+    
+                        <div class="row"> <!-- row  --> 
+                            
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="id_presentacion" class="form-label">Presentacion*</label>                                    
+                                    <select id="id_presentacion" class="form-control input-lg" style="height:50px">                                        
+                                        
+                                    </select>
+                                    <div id='error_presentacion'></div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="lote">Lote*</label>
+                                    <!--<input type="text" class="form-control input-lg" rows="5" id="lote" name="lote" autocomplete="off" required />-->
+                                    <select id="lote" class="form-control input-lg" style="height:50px">                                        
+                                        
+                                    </select>
+                                    <div id='error_lote'></div>
+                                </div>
+                            </div>
+                            
+                        </div> <!-- end-row  -->
+
+                        <div class="row"> <!-- row  --> 
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="cantidad">Cantidad*</label>                                    
+                                    <input type="text" class="form-control input-lg" id="cantidad" name="cantidad" autocomplete="off" required />
+                                    <div id='error_cantidad'></div>
+                                </div>
+                            </div>				       
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="fecha_vencimiento">Fecha de vencimiento*</label>                                    
+                                    <input type="date" class="form-control input-lg date-pickr flatpickr-input hasDatepicker" style="border-radius:20px" id="fecha_vencimiento" name="fecha_vencimiento" autocomplete="off" required />
+                                    <div id='error_fecha_vencimiento'></div>
+                                </div>
+                            </div>				       
+                        </div> <!-- end-row  -->
+                      
+
+                        <div class="row"> <!-- row  --> 
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="fecha_ingreso">Fecha de ingreso*</label>                                    
+                                    <input type="date" class="form-control input-lg date-pickr flatpickr-input hasDatepicker" style="border-radius:20px" id="fecha_ingreso" name="fecha_ingreso" autocomplete="off" required />
+                                    <div id='error_fecha_ingreso'></div>
+                                </div>
+                            </div>				       
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="dosis_presentacion">Dosis por presentacion*</label>                                    
+                                    <input type="text" class="form-control input-lg" id="dosis_presentacion" name="dosis_presentacion" autocomplete="off" required />
+                                    <div id='error_dosis_presentacion'></div>
+                                </div>
+                            </div>				       
+                        </div> <!-- end-row  -->
+
+                        <div class="row"> <!-- row  --> 
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="hrs_duracion_abierto">Horas duracion abierto*</label>                                    
+                                    <input type="text" class="form-control input-lg" id="hrs_duracion_abierto" name="hrs_duracion_abierto" autocomplete="off" required />
+                                    <div id='error_hrs_duracion_abierto'></div>
+                                </div>
+                            </div>				       
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="hrs_duracion_almacenado">Horas duracion almacenado*</label>                                    
+                                    <input type="text" class="form-control input-lg" id="hrs_duracion_almacenado" name="hrs_duracion_almacenado" autocomplete="off" required />
+                                    <div id='error_hrs_duracion_almacenado'></div>
+                                </div>
+                            </div>				       
+                        </div> <!-- end-row  -->
+
+
+                        <div class="row"> <!-- row  --> 
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="proveedor">Proveedor</label>                                    
+                                    <input type="text" class="form-control input-lg" id="proveedor" name="proveedor" autocomplete="off" required />
+                                    <div id='error_proveedor'></div>
+                                </div>
+                            </div>				       
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="fabricante">Fabricante</label>                                    
+                                    <input type="text" class="form-control input-lg" id="fabricante" name="fabricante" autocomplete="off" required />
+                                    <div id='error_fabricante'></div>
+                                </div>
+                            </div>				       
+                        </div> <!-- end-row  -->
+
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="mt-2" id='error_other'></div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6"></div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <input id='btn_add' type="button" class="btn btn-primary" onclick="validated()" value='Guardar'>
+                                </div>
+                            </div>
+                        </div>
+
+                        
+					</div>
+					<br>
+					<div class="text_r text-xs text-gray-700 ">* Campos requeridos</div>							
+				</div>
+               
+		</form>
+	</div>
+	
+</div>
+<div>
+    <br>
+    <br>
+    <br>
+</div>

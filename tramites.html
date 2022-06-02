@@ -1,0 +1,813 @@
+<style>
+    .select2 {
+        width: 100% !important;
+    }
+</style>
+
+
+
+
+<div class="contenido">
+    <div class="card shadow bg-white round-div">
+        <div class="card-header py-3">
+            <label id="titulo_listado">Listado de tramites</label>
+            <i id='ayuda' class="fas fa-question-circle fa-fw" style="float:right;cursor: pointer"></i>
+        </div>
+        <div class="container-fluid p-3">
+            <div class="row">
+                <div class="col-sm-12 ">
+                    <br>
+                    <button type="button" class="btn btn-sm btn-success" id="btnNuevo">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none"
+                            stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="12" y1="8" x2="12" y2="16"></line>
+                            <line x1="8" y1="12" x2="16" y2="12"></line>
+                        </svg>
+                        Nuevo
+                    </button>
+
+                    <div class="table-responsive" id="div_tabla">
+
+
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+</div>
+
+
+<div class="modal fade" id="nuevo_tramite">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <!---------Encabezado-------->
+            <div class="modal-header">
+                <h3 id='titulo_modal' class="modal-title">Informaci&oacute;n de tr&aacute;mite</h3>
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            </div>
+            <!---------cuerpo-------->
+
+            <div class="modal-body">
+                <div class="card-deck">
+                    <div id="info_general" class="card">
+                        <!-- inicio div detalle aviso -->
+                        <div class="card-header">
+                            <div class="card-title mb-0">
+                                Información General
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="row" id="grupoTramite">
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <label for="IdTramite">Tramite*</label>
+                                        <select id="IdTramite" class="form-control" style="height:50px">
+                                            <option value="0" selected>--Seleccionar tramite--</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <label for="Tiempo">Tiempo*</label>
+                                        <input type="text" class="form-control input-lg" id="Tiempo"
+                                            placeholder="Tiempo" name="Tiempo" autocomplete="off" required>
+                                        <small>(Tiempo en d&iacute;as)</small>
+                                        <div id='error_nombre'></div>
+                                    </div>
+                                </div>
+                            </div> <!-- row  -->
+
+
+                            <div class="row cheques">
+                                <!-- row  -->
+                                <div class="col-md-12">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" value="" id="FirmaElectronica">
+                                        <label class="form-check-label" for="FirmaElectronica">
+                                            Firma electr&oacute;nica
+                                        </label>
+                                    </div>
+                                </div>
+                            </div> <!-- row  -->
+
+                            <div class="row">
+                                <!-- row  -->
+                                <div class="col-md-12">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" value="" id="TramiteOnline">
+                                        <label class="form-check-label" for="TramiteOnline">
+                                            Tr&aacute;mite 100% en l&iacute;nea
+                                        </label>
+                                    </div>
+                                </div>
+                            </div> <!-- row  -->
+
+                            <div class="row">
+                                <!-- row  -->
+                                <div class="col-md-12">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" value="" id="Inversionista">
+                                        <label class="form-check-label" for="Inversionista">
+                                            Tiene inversionista
+                                        </label>
+                                    </div>
+                                </div>
+                            </div> <!-- row  -->
+
+                            <div class="row">
+                                <!-- row  -->
+                                <div class="col-md-12">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" value="" id="DigitalJunio">
+                                        <label class="form-check-label" for="DigitalJunio">
+                                            Es digital para Junio (2022)
+                                        </label>
+                                    </div>
+                                </div>
+                            </div> <!-- row  -->
+                            <div class="row">
+                                <!-- row  -->
+                                <div class="col-md-12">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" value="" id="DiaJunio">
+                                        <label class="form-check-label" for="DiaJunio">
+                                            Duración de 1 día para Junio (2022)
+                                        </label>
+                                    </div>
+                                </div>
+                            </div> <!-- row  -->
+
+                        </div>
+                    </div>
+                    <div id="info_optimizados" class="card">
+                        <div class="card-header">
+                            <div class="card-title mb-0">
+                                Tr&aacute;mites Optimizados
+                            </div>
+                        </div>
+                        <div class="card-body">
+
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <label for="TramiteOp">Nombre de tr&aacute;mite</label>
+
+                                        <input type="text" id="TramiteOp" class="form-control" autocomplete="off" />
+                                    </div>
+                                </div>
+                            </div> <!-- row  -->
+
+                            <div class="row">
+                                <div class="col text-right">
+                                    <button type="button" id="btnAddTramite" class="btn btn-primary">
+                                        <i class="fa-solid fa-plus"></i> Agregar
+                                    </button>
+                                </div>
+                            </div>
+
+
+                            <table class="table mt-2">
+                                <thead>
+                                    <tr>
+                                        <th class="w-100">Tr&aacute;mites a optimizar</th>
+                                        <th></th>
+
+                                </thead>
+                                <tbody id="tbTramitesOps">
+                                    <!--<tr>
+                                            <td>tramite</td>
+                                            <td>
+                                                <button type="button" class="eliminar_fila btn btn-danger">
+                                                <i class="fa-solid fa-trash-can"></i> Borrar
+                                                </button>
+                                            </td>
+                                        </tr>-->
+                                </tbody>
+                            </table>
+
+
+                        </div>
+
+
+
+                    </div>
+                </div>
+            </div>
+            <!---------footer-------->
+            <div class="modal-footer">
+                <button class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+
+                <input id='btnNuevaInfo' type="button" class="btn btn-primary" Value='Guardar'>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+
+<script>
+
+    //se usa en tramites
+    if (typeof autosrc == 'undefined') { var autosrc = []; }
+    if (typeof topsborrados == 'undefined') { var topsborrados = []; }
+
+    var mask = IMask(document.getElementById('Tiempo'), {
+        mask: /^(\d+)?([.]?\d{0,1})?$/
+    });
+
+    $.fn.select2.defaults.set("theme", "bootstrap4");
+
+    function onSelectItem(item, element) {
+
+
+        if (item.value == '') {
+            alert('Debe digitar el nombre de el Trámite Optimizado');
+        }
+        else {
+            if (!VerificarTopAdded(item.label)) { return; }
+            $('#tbTramitesOps').append('<tr>' +
+                '<td id="' + item.value + '">' + item.label + '</td>' +
+                '<td>' +
+                '<button type="button" class="eliminar_fila btn btn-danger btn-sm">' +
+                '<i class="fa-solid fa-trash-can"></i>' +
+                '</button>' +
+                '</td>' +
+                '</tr>');
+
+            $('#tbTramite').val('');
+        }
+
+        $('.eliminar_fila').on('click', function () {
+            BorrarTops($(this));
+        });
+    }
+
+    function VerificarTopAdded(TopNombre) {
+        let existe = $("#tbTramitesOps td:contains(" + TopNombre + ")").text();
+        if (existe) {
+            return false;
+        }
+        return true;
+    }
+
+    function BorrarTops(obj) {
+        id = 0;
+        let fila = obj.closest("tr");
+        $(fila).find('td:first').each(function () {
+            id = $(this).attr('id');
+            tramite = $(this).text();
+            topsborrados.push({ id: id, nombre: tramite });
+        })
+        obj.closest("tr").remove();
+    }
+
+    function GetOpTramitesAdded() {
+        var array = [];
+        $('#tbTramitesOps').find('tr').each(function () {
+            var id = 0;
+            $(this).find('td:first').each(function () {
+                id = $(this).attr('id');
+                tramite = $(this).text();
+                array.push({ id: id, nombre: tramite });
+            })
+        })
+        return JSON.parse(JSON.stringify(array));
+    }
+
+    function CargarNuevaInfo() {
+        topsborrados = [];
+        let modal = $("#nuevo_tramite");
+        modal.removeData('op');
+        modal.data('op', 'new');
+
+        modal.find("#titulo_modal").text("Información de trámite");
+
+        modal.find("#grupoTramite").show();
+
+        modal.find('#Tiempo').val('');
+
+        $("#TramiteOp").val('');
+
+        modal.find('input[type=checkbox]').prop('checked', false);
+
+        $("#IdTramite").empty();
+
+        $("#tbTramitesOps").empty();
+
+        minsal_get('/tramites/for/select',
+            (data) => {
+                if (data['resultado'] == "ERROR") {
+                    minsal_modal('Error', 'No existen Tramites para esta institución.');
+                    return false;
+                }
+
+                CargarAutoCompletar(data.datos, $("#IdTramite").val());
+
+                modal.modal("show");
+            },
+            (err) => {
+
+            }
+        )
+    }
+
+    function AgregarNuevaInfo(cargando) {
+        console.log("entra");
+        let modal = $("#nuevo_tramite");
+        var url = "tramites/agregar";
+        if (modal.data("op") == "add") {
+            url = "tramites/evolucion/guardar";
+        }
+
+        let datos = {
+            id_tramite: $("#IdTramite").val(),
+            tiempo_tramite: $("#Tiempo").val(),
+            inversionista: $("#Inversionista").is(":checked") ? 1 : 0,
+            digital_junio: $("#DigitalJunio").is(":checked") ? 1 : 0,
+            dia_junio: $("#DiaJunio").is(":checked") ? 1 : 0,
+            firma_electronica: $("#FirmaElectronica").is(":checked") ? 1 : 0,
+            tramite_online: $("#TramiteOnline").is(":checked") ? 1 : 0,
+            tramites_optimizados: GetOpTramitesAdded(),
+            tramites_optimizados_borrados: JSON.parse(JSON.stringify(topsborrados))
+        };
+
+        minsal_post(url,
+            (data) => {
+                console.log(data);
+                if (data.resultado == 'ERROR') {
+                    //alert(data.datos.resultado);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: '' + data.datos.error,
+                        //footer: ''+data.entregado,
+                    })
+                }
+                else {
+                    //mostrar un mensaje 
+                    var Toast = Swal.mixin({
+                        toast: true,
+                        position: 'top-end',
+                        showConfirmButton: false,
+                        timer: 3000
+                    });
+
+                    Toast.fire({
+                        icon: 'success',
+                        title: '¡El registro se guardo con éxito!'
+                    })
+
+                    //cierra el modal
+                    $('#nuevo_tramite').modal('toggle');
+
+                    //actualiza la tabla
+                    funcionCrearTabla();
+                }
+
+                cargando = false;
+
+            }, (jqXHR, status, err) => {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: '' + err.message
+                })
+            },
+            datos
+        );
+    }
+
+    function CargarUltimaInfo(row) {
+        topsborrados = [];
+        let modal = $("#nuevo_tramite");
+        modal.removeData('op');
+        modal.data('op', 'add');
+        var id = $('#tabla').DataTable().row(row).data().id;
+
+        //llamamos el endpoint de la última información
+        minsal_get('/tramites/evolucion/obtener_ultimo?id_tramite=' + id,
+            (data) => {
+
+                if (data['resultado'] == "OK") {
+                    console.log(data);
+                    valores = data.datos.etramite;
+                    modal.find("#titulo_modal").text(valores.tramite.nombre_tramite);
+
+                    modal.find("#IdTramite").empty();
+                    modal.find("#IdTramite").append('<option value="' + valores.id_tramite + '">' + valores.tramite.nombre_tramite + '</option>');
+                    modal.find("#grupoTramite").hide();
+
+                    modal.find("#IdTramite").val(valores.id_tramite).trigger('change');
+
+                    modal.find('#Tiempo').val(valores.tiempo_tramite);
+
+                    modal.find('#FirmaElectronica').prop('checked', valores.firma_electronica == 1 ? true : false);
+                    modal.find('#TramiteOnline').prop('checked', valores.tramite_online == 1 ? true : false);
+                    modal.find('#Inversionista').prop('checked', valores.inversionista == 1 ? true : false);
+                    modal.find('#DigitalJunio').prop('checked', valores.digital_junio == 1 ? true : false);
+                    modal.find('#DiaJunio').prop('checked', valores.dia_junio == 1 ? true : false);
+
+                    modal.find("#TramiteOp").val('');
+                    modal.find("#tbTramitesOps").empty();
+
+                    //Tramites Optimizados
+                    atramite = data.datos.atramite;
+                    console.log(atramite);
+
+
+                    $.each(atramite, function (key, value) {
+                        $('#tbTramitesOps').append('<tr>' +
+                            '<td id="' + value.tramites.id + '">' + value.tramites.nombre_tramite + '</td>' +
+                            '<td>' +
+                            '<button type="button" class="eliminar_fila btn btn-danger btn-sm">' +
+                            '<i class="fa-solid fa-trash-can"></i>' +
+                            '</button>' +
+                            '</td>' +
+                            '</tr>');
+                    });
+
+                    $('.eliminar_fila').on('click', function () {
+                        BorrarTops($(this));
+                    });
+
+
+                    CargarAutoCompletar(data.datos.dtramite, 0);
+
+
+                } else if (data['resultado'] == "ERROR") {
+                    minsal_modal('Error', 'No existen Unidades para esta institución.');
+                    return false;
+                }
+            },
+            (err) => {
+
+            }
+        )
+        modal.modal("show");
+    }
+
+    function CargarAutoCompletar(infoauto, delop) {
+        try {
+            var src = '{';
+            $.each(infoauto, function (key, value) {
+                $('#IdTramite').append('<option value="' + value.id + '">' + value.nombre_tramite + ' / ' + value.nombre_unidad + '</option>');
+                src += '"' + value.nombre_tramite + '":' + value.id + ',';
+            });
+            src = src.substring(0, src.length - 1);
+            src += '}';
+
+            autosrc = JSON.parse(src);
+            ExcluirOpsAutoCompletar(delop, autosrc)
+        }
+        catch (ex) {
+            autosrc = []
+            console.log("no se pudo guardar información de tramites en autocompletar");
+        }
+
+    }
+
+    function ExcluirOpsAutoCompletar(ops, autosrc) {
+        //crea nueva instancia
+        let nv = JSON.parse(JSON.stringify(autosrc));
+        if (nv.length == 0) { return; }
+        for (var f in nv) {
+            if (nv.hasOwnProperty(f) && nv[f] == ops) {
+                delete nv[f];
+            }
+        }
+
+        $('#TramiteOp').autocomplete({
+            source: nv,
+            onSelectItem: onSelectItem,
+            highlightClass: 'text-success',
+            treshold: 2,
+        });
+    }
+
+    $(function () {
+        var cookie = JSON.parse(getCookie('edata'));
+
+        $('#titulo_listado').empty();
+        $('#titulo_listado').html('');
+        $('#titulo_listado').append('Listado de tramites de ' + cookie.nombre_institucion);
+
+        $('#IdTramite').select2();
+
+        $("#IdTramite").change(function () {
+            ExcluirOpsAutoCompletar($(this).val(), autosrc);
+        });
+
+        //Tooltip de ayuda
+        $('#ayuda').tooltip({ title: "<b><code>INFORMACION</code></b><br><br>Listado de tramites de cada institución.<br><br>Puede agregar nuevos tramites y actualizar la evolución de cada uno de ellos.", html: true, placement: "bottom" });
+
+        funcionCrearTabla();
+        // $('#titulo_listado').append('Listado de tramites de ' + data.datos[0].nombre_institucion);
+
+        $('#btnAddTramite').on('click', function () {
+            var tbTramite = $('#TramiteOp').val();
+
+            if (tbTramite == '') {
+                alert('Debe digitar el nombre de el Trámite Optimizado');
+            }
+            else {
+                if (!VerificarTopAdded(tbTramite)) return;
+
+                $('#tbTramitesOps').append('<tr>' +
+                    '<td id="0">' + tbTramite + '</td>' +
+                    '<td>' +
+                    '<button type="button" class="eliminar_fila btn btn-danger btn-sm">' +
+                    '<i class="fa-solid fa-trash-can"></i>' +
+                    '</button>' +
+                    '</td>' +
+                    '</tr>');
+
+                $('#tbTramite').val('');
+            }
+
+            $('.eliminar_fila').on('click', function () {
+                BorrarTops($(this));
+
+            });
+        })
+
+        $("#btnNuevo").on('click', function () {
+            CargarNuevaInfo();
+        });
+
+    });
+
+    function funcionCrearTabla() {
+        refrescar();
+        $('#div_tabla').empty();
+        $('#div_tabla').html('');
+        $('#div_tabla').append('<table id="tabla" class="table" style="font-size: 14px; table-layout:fixed; word-wrap: break-all;">' +
+            '<thead class="text-center">' +
+            '<tr>' +
+            '<th>id</th>' +
+            '<th>Tramite</th>' +
+            '<th>Unidad</th>' +
+            '<th>Tramites Optimizados</th>' +
+            '<th>Información Original</th>' +
+            '<th>Información Actual</th>' +
+            '<th>Acciones</th>' +
+            '</tr>' +
+            '</thead>' +
+            '<tbody>' +
+            '</tbody>' +
+            '<tfoot>' +
+            '</tfoot>' +
+            '</table>');
+
+        /**/
+
+
+        $('#tabla').DataTable({
+            ajax: {
+                url: api_url + "tramites/agregados",
+                headers: { "Authorization": "bearer " + getCookie('token') },
+                type: "GET",
+                dataSrc: "datos",
+            },
+            "columns": [
+                { "data": "id", "visible": false },
+                { "data": "nombre_tramite", "orderable": true, "width": "20%", responsivePriority: 1 },
+                { "data": "nombre_unidad", "orderable": true, "width": "10%", },
+                {
+                    "data": "tramites_optimizados", "orderable": true, "width": "15%",
+                    render: function (data, type, row) {
+
+                        return data;
+
+                    }
+                },
+                {
+                    "data": null, "orderable": true, "width": "20%",
+                    render: function (data, type, row) {
+                        if (row['original']) {
+
+                            var original = row['original'];
+                            var cadena = '';
+
+                            $.each(original, function (key, value) { //loop though each file
+
+                                solo_la_fecha = original[key].created_at.substring(0, 10)
+                                partes_fecha = solo_la_fecha.split('-');
+
+                                var fecha_creacion = partes_fecha[2] + '/' + partes_fecha[1] + '/' + partes_fecha[0];
+                                cadena += '<strong>Fecha:</strong> ' + fecha_creacion + '<br>';
+
+                                cadena += '- <strong>Tiempo:</strong> ' + original[key].tiempo_tramite + ' días<br>' +
+                                    '- <strong>Firma Digital:</strong> ';
+
+                                cadena += (original[key].firma_electronica == 1) ? '<i class="fas fa-check text-success fa-lg" aria-hidden="true" title="Posee Firma Digital"></i>' : '<i class="fas fa-times text-danger fa-lg" aria-hidden="true" title="No Posee Firma digital"></i>';
+                                cadena += '<br>';
+                                cadena += '- <strong>100% OnLine:</strong> ';
+                                cadena += (original[key].tramite_online == 1) ? '<i class="fas fa-check text-success fa-lg" aria-hidden="true" title="100% en Linea"></i>' : '<i class="fas fa-times text-danger fa-lg" aria-hidden="true" title="No esta 100% en Linea"></i>';
+                            })
+
+                            return cadena;
+                        }
+                        else {
+                            return '';
+                        }
+                    }
+                },
+                {
+                    "data": null, "orderable": true, "width": "20%",
+                    render: function (data, type, row) {
+                        if (row['actual']) {
+                            var actual = row['actual'];
+                            var cadena = '';
+
+                            $.each(actual, function (key, value) { //loop though each file
+
+                                solo_la_fecha = actual[key].updated_at.substring(0, 10)
+                                partes_fecha = solo_la_fecha.split('-');
+
+                                var fecha_actualizacion = partes_fecha[2] + '/' + partes_fecha[1] + '/' + partes_fecha[0];
+                                cadena += '<strong>Fecha:</strong> ' + fecha_actualizacion + '<br>';
+                                cadena += '- <strong>Tiempo:</strong> ' + actual[key].tiempo_tramite + ' días<br>' +
+                                    '- <strong>Firma Digital:</strong> ';
+
+                                cadena += (actual[key].firma_electronica == 1) ? '<i class="fas fa-check text-success fa-lg" aria-hidden="true" title="Posee Firma Digital"></i>' : '<i class="fas fa-times text-danger fa-lg" aria-hidden="true" title="No Posee Firma digital"></i>';
+                                cadena += '<br>';
+                                cadena += '- <strong>100% OnLine:</strong> ';
+                                cadena += (actual[key].tramite_online == 1) ? '<i class="fas fa-check text-success fa-lg" aria-hidden="true" title="100% en Linea"></i>' : '<i class="fas fa-times text-danger fa-lg" aria-hidden="true" title="No esta 100% en Linea"></i>';
+                            })
+
+                            return cadena;
+                        }
+                        else {
+                            return '';
+                        }
+                    }
+                },
+                /*{
+                    "data": "informacion_actual", "orderable": true, "width": "20%",
+                    render: function (data, type, row) {
+
+                        var cadena = '- <strong>Tiempo:</strong> ' + row['tiempo_actual'] + ' días<br>' +
+                            '- <strong>Firma Digital:</strong> ';
+
+                        cadena += (row['firma_digital_actual'] == 1) ? '<i class="fas fa-check text-success fa-lg" aria-hidden="true" title="Posee Firma Digital"></i>' : '<i class="fas fa-times text-danger fa-lg" aria-hidden="true" title="No Posee Firma digital"></i>';
+                        cadena += '<br>';
+                        cadena += '- <strong>100% OnLine:</strong> ';
+                        cadena += (row['online_actual'] == 1) ? '<i class="fas fa-check text-success fa-lg" aria-hidden="true" title="100% en Linea"></i>' : '<i class="fas fa-times text-danger fa-lg" aria-hidden="true" title="No esta 100% en Linea"></i>';
+
+                        return cadena;
+
+                    }
+                },*/
+                {
+
+                    "orderable": false,
+                    "width": "15%",
+                    responsivePriority: 2,
+                    data: function (data, type, full, meta) {
+                        var respuesta = '<div class="row">';
+
+                        respuesta += '<a type="button" title="Nueva Información" class="nueva_informacion btn bg-white btn-sm rounded">' +
+                            '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#687dff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3h18v18H3zM12 8v8m-4-4h8"/></svg>' +
+                            '</a> ';
+
+                        /*respuesta += '<a type="button" title="Editar Tramite" class="editar btn bg-white btn-sm rounded" data-toggle="modal" data-target="#nuevo_tramite">' +
+                            '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#17a2b8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.66V20a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h5.34"></path><polygon points="18 2 22 6 12 16 8 16 8 12 18 2"></polygon></svg>' +
+                            '</a> ';*/
+
+                        respuesta += '<a type="button" title="Eliminar Tramite" class="eliminar btn bg-white btn-sm rounded">' +
+                            '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#dc3545" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>' +
+                            '</a> ';
+
+
+                        respuesta += '</div>';
+                        return respuesta;
+                    }
+                },
+            ],
+
+            "order": [[1, "asc"]],
+            "dom": "<'row'<'col-12'f>>" +
+                "<'row'<'col-12'tr>>" +
+                "<'row'<'col-12 col-sm-5'i><'col-12 col-sm-7'p>>",
+            "language": {
+                "url": "js/lang/Spanish.json"
+            },
+            "pageLength": 30,
+            "lengthMenu": [30, 60, 100],
+            "ordering": true,
+            "autoWidth": false,
+            "responsive": true,
+        });
+
+
+        $('#tabla').on('click', '.editar', function () {
+            var row = $(this).closest('tr');
+
+            var id = $('#tabla').DataTable().row(row).data().id;
+
+        });
+
+        $('#tabla').on('click', '.nueva_informacion', function () {
+            var row = $(this).closest('tr');
+            CargarUltimaInfo(row);
+        });
+
+        $('#tabla').on('click', '.eliminar', function () {
+            var infoPages = $('#tabla').DataTable().page.info();
+
+            var row = $(this).closest('tr');
+
+            var id = $('#tabla').DataTable().row(row).data().id;
+
+            Swal.fire({
+                title: '¿Esta seguro?',
+                text: "¡Esta acción no se puede deshacer!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Si, Deseo Borrar el Registro',
+                cancelButtonText: "No, ¡Cancelar!"
+            }).then((result) => {
+                if (result.isConfirmed) {
+
+                    var vars = { 'id_tramite': id };
+
+                    minsal_put('tramites/eliminar/detalle',
+                        (data) => {
+                            console.log(data);
+                            //-----------------------------------
+                            if (data.resultado == "ERROR") {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Error',
+                                    text: '' + data.datos.error,
+                                    //footer: ''+data.footer
+                                })
+                            }
+                            else {
+                                //actualizar datatable();
+                                if ((infoPages.page + 1) == infoPages.pages)//Si esta en la ultima pagina
+                                {
+                                    //si solo hay un registro
+                                    if (infoPages.start == (infoPages.end - 1)) {
+                                        //si ya no hay ningun registro
+                                        if (infoPages.page == 0) {
+                                            $('#tabla').DataTable().ajax.reload();
+                                        }
+                                        else {
+                                            //Ya que ya sabemos que va a borrar el ultimo registro, nos movemos a la pagina anterior
+                                            $("#tabla").DataTable().page(infoPages.page - 1).draw('page');
+                                            //y entonces actualizamos el datatable sin que cambie de pagina
+                                            $('#tabla').DataTable().ajax.reload(null, false);
+                                        }
+                                    }
+                                    else // si esta en la ultima pagina pero aún hay registros
+                                    {
+                                        //actualizar datatable() en la misma pagina donde esta
+                                        $('#tabla').DataTable().ajax.reload(null, false);
+                                    }
+                                }
+                                else //Si no esta en la ultima página
+                                {
+                                    //actualizar datatable() en la misma pagina donde esta
+                                    $('#tabla').DataTable().ajax.reload(null, false);
+                                }
+
+
+                                Swal.fire(
+                                    'Borrado',
+                                    'El registro se ha borrado.',
+                                    'success'
+                                )
+                            }
+                            //-----------------------------------
+
+                        },
+                        (err) => {
+
+                        }, vars
+                    )
+                }
+
+
+            })
+
+        });
+
+        var cargando = false;
+        $("#btnNuevaInfo").on('click', function () {
+            if (!cargando) {
+                cargando = true;
+                AgregarNuevaInfo();
+            }
+        });
+    }
+
+</script>

@@ -1,0 +1,129 @@
+<style>
+    .round-div 	{	border-radius: 15px 15px 15px 15px;	}
+</style>
+
+<script>
+
+    var validator1 = $("#form-change").validate({
+            rules: {
+                destino: { required: true },
+            },
+            messages: {
+                destino: "Debe de seleccionar un establecimiento",
+            },
+            errorPlacement: function(error, element) {
+            if  (element.hasClass('form-control') && element.next('.select2-container').length) {
+                error.insertAfter(element.next('.select2-container'));
+            }
+        }
+	});
+
+    function getEstablecimientos () {
+        minsal_get('admin/establecimiento/findby_active'
+			, (data) => {
+				$.each(data.datos['establecimiento'], function (key, val) {
+					$('#destino').append('<option value="' + val.id + '">' + val.nombre + '</option>');
+				});
+			}
+			, (jqXHR, status, err) => {}
+		);
+    }
+      
+    $('#bt_change').click( () => {
+
+        if ( $("#form-change").valid() == true ) {
+                
+            var usuario            = JSON.parse(getCookie("edata"));
+            var id_usuario         = usuario['id_usuario'];
+            var id_establecimiento = $('#destino').val();
+                
+            datos = {
+                "id_usuario" : parseInt(id_usuario),
+                "id_establecimiento" : parseInt(id_establecimiento)
+            };
+
+            minsal_put('admin/usuarios/cambio_establecimiento_admin', (data) => {
+                        refrescar_usuario();
+                    }, (jqXHR, status, err) => {}
+                    , datos
+            );
+        }
+	});
+
+    function refrescar_usuario () {
+		minsal_put('autenticar', (data) => {
+                var es = JSON.stringify(data['datos']);
+                setCookie("edata", es, 1);
+                //ui_token();
+                document.location.href = dns;
+		    }
+		    ,(jqXHR, status, err) => {
+			    minsal_modal('Error al cambiar establecimiento', 'Ocurrió un error desconocido al cambiar establecimiento');
+		    }
+		);
+	}
+
+    function defaultData(){
+        var establecimiento        = JSON.parse(getCookie("edata"));
+		var id_establecimiento     = establecimiento['id_establecimiento'];
+        var nombre_establecimiento = establecimiento['establecimiento_nombre'];
+        $('#origen').append($("<option></option>").attr("value", id_establecimiento).text(nombre_establecimiento));
+    }
+
+    $(document).ready(function(){
+        defaultData();
+        getEstablecimientos();
+    });
+
+    var idEstablecimientoDestino = $('#destino');
+    var idEstablecimientoOrigen  = $('#origen');
+   
+    initializeSelect2(idEstablecimientoOrigen, false, false);
+    initializeSelect2(idEstablecimientoDestino, true, true);
+
+</script>
+
+<div class="contenido">
+    <div class="">
+        <h1 class="text-center mb-2 md:mb-4 leading-tight titulo">CAMBIO DE ESTABLECIMIENTO</h1>
+    </div>
+    <div class="p-4 shadow bg-white round-div">
+        <form action="get" id="form-change">
+            <div class="row p-4">
+                <div class="col-sm-10 offset-1">
+                    <div class="form-group">
+                        <label for="origen">Establecimiento Actual</label>
+                        <select name="origen" id="origen" class="form-control" disabled>
+                               
+                        </select>
+                    </div>
+                </div>
+               
+            </div>
+            <div class="row p-4">
+                <div class="col-sm-10 offset-1">
+                    <div class="form-group">
+                        <label for="destino">Establecimiento al que deseo cambiarme*</label>
+                        <select name="destino" id="destino" class="form-control">
+                               
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-10 offset-1">
+                    <div class="shadow-none p-3 mb-5 bg-light rounded">
+                        <div style="text-align: center;">
+                            <button type="button" class="btn btn-primary text-center" id="bt_change">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M17 2.1l4 4-4 4"/><path d="M3 12.2v-2a4 4 0 0 1 4-4h12.8M7 21.9l-4-4 4-4"/><path d="M21 11.8v2a4 4 0 0 1-4 4H4.2"/>
+                                </svg>
+                                Cambiar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
